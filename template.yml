@@ -1,0 +1,309 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+
+  LambdaFolder:
+    Description: Folder that contains Backend Lambda code
+    MaxLength: 60
+    MinLength: 5
+    Type: String
+
+Resources:
+
+# AWS::IAM::Role = Any IAM roles can be attached to AWS entities.  It allows stuff we create in AWS
+# priviledges and boundries of what they are allowed to do.  So we have can scope these
+# down as much as we want, or give our resources as much privileges as well.
+# mostly security stuff but also super annoying because stuff wont work alot of times
+# its the IAM priviledges to blame.
+  RecursiveThinkingLambdaRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+      RoleName: "RecursiveThinkingLambdaRole"
+
+# AWS::Cognito::UserPool = Heres our Cognito User Pool!  We can set all the properties
+# to configure how we store/verify users.  This will essentially be our AUTH.
+# it doesn't need to store user data just their email/password so we can Auth them
+# to use our service.
+  RecursiveThinkingUserPool:
+    Type: "AWS::Cognito::UserPool"
+    Properties:
+      AutoVerifiedAttributes:
+        - email
+      EmailVerificationMessage: Welcome! Verify your Recursive Thinking email! {####}
+      EmailVerificationSubject: Verification of Recursive Thinking profile
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: False
+          RequireNumbers: False
+          RequireSymbols: False
+          RequireUppercase: False
+      UserPoolName: RecursiveThinkingUserPool
+
+# AWS::Cognito::UserPoolClient = This is essentially our Web App which is a client
+# of our user pool.  We can define the refresh token validity and thats about it.
+# We need the ID of this client to connect to our user pool (see outputs section at bottom).
+  RecursiveThinkingUserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
+    Properties:
+      ClientName: RTW
+      GenerateSecret: False
+      RefreshTokenValidity: 30
+      UserPoolId: !Ref RecursiveThinkingUserPool
+
+
+# AWS::ApiGateway::RestApi = heres our base api.  This needs resources and methods to work.
+  RecursiveThinkingAPI:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "RTWAPI"
+      EndpointConfiguration:
+        Types:
+          - "REGIONAL"
+
+# AWS::ApiGateway::Resource = The resources we define for our API.  These are equivelant
+# to the URL path we make the request to. e.g. BASEAPIURL.com/resourcepath where
+# resourcepath is more like /developers/{id} or something.
+  RecursiveThinkingAPIResourceDevelopers:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
+      PathPart: "developers"
+      RestApiId: !Ref RecursiveThinkingAPI
+
+  RecursiveThinkingAPIResourceDevelopersId:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !Ref RecursiveThinkingAPIResourceDevelopers
+      PathPart: "{id}"
+      RestApiId: !Ref RecursiveThinkingAPI
+
+# AWS::ApiGateway::Method = The HTTP Method that gets attached to a API Gateway Resource.
+# Could be GET, POST, PUT, DELETE ... etc.  We define that the method will be a proxy,
+# meaning it will route all requests to a Lambda for processing.  We also define to use
+# our Cognito Authorizer to determine if the request is ok to proceed.
+  RecursiveThinkingAPIResourceDevelopersGETMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "GET"
+      ResourceId: !Ref RecursiveThinkingAPIResourceDevelopers
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDevelopers.Arn}/invocations
+
+  RecursiveThinkingAPIResourceDevelopersPOSTDeveloperMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "POST"
+      ResourceId: !Ref RecursiveThinkingAPIResourceDevelopersId
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostDeveloper.Arn}/invocations
+
+  RecursiveThinkingAPIResourceDevelopersGETDeveloperMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "GET"
+      ResourceId: !Ref RecursiveThinkingAPIResourceDevelopersId
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDeveloper.Arn}/invocations
+
+# AWS::ApiGateway::Authorizer = This is our Authorizer on our API's.  In this case its
+# configured to look for a valid Cognito IdToken in the Authorization header of the request.
+# Our API's will check that IDToken with the specified Cognito User Pool and determine
+# whether or not to send the request on to the lambda that will process the request.
+# Users get a cookie in their local storage when they sign in with cognito we can use for
+# all our API Calls to the backend.
+  RecursiveThinkingAuthorizer:
+    Type: "AWS::ApiGateway::Authorizer"
+    Properties:
+      IdentitySource: "method.request.header.Authorization"
+      Name: "RecursiveThinkingCognitoAuthorizer"
+      ProviderARNs:
+        - !GetAtt RecursiveThinkingUserPool.Arn
+      RestApiId: !Ref RecursiveThinkingAPI
+      Type: "COGNITO_USER_POOLS"
+
+
+# AWS::Lambda::Permission = Lambda Functions need this to allow other AWS Services
+# to invoke them.  In this case we specify API Gateway as the principal so that our
+# functions can be invoked by our API.  We can have as many of these attached to a
+# Lambda as we need things to invoke it.
+# Action = IAM action ( in this case lambda:* ) meaning anything, we prob just need lambda:Invoke.
+# FunctionName = Name of function to attach the permission to.
+# Principal = The service that will have permission to invoke the function.
+  RecursiveThinkingLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWGetDevelopers
+      Principal: apigateway.amazonaws.com
+
+  RecursiveThinkingLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWGetDeveloper
+      Principal: apigateway.amazonaws.com
+
+  RecursiveThinkingLambdaPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWPostDeveloper
+      Principal: apigateway.amazonaws.com
+
+
+# AWS::Lambda::Function = Lambda functions! We point to the rtwbackendbucket and a zip file equal
+# to the functions name, as our code source.  (This all gets created in our Python Script).
+# Our functions need the DynamoDB Table name as an environment variable so we DependsOn that.
+# The role defined here is a reference to an IAM role the function will assume, it gives
+# the function power to do things with other AWS services (such as read/write to DynamoDB)
+  RTWGetDevelopers:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingDeveloperProfiles
+    Properties:
+      Code:
+        S3Bucket: rtwbackendbucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDevelopers.zip"] ]
+      Description: "Get RTW Developers"
+      FunctionName: "RTWGetDevelopers"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingDeveloperProfiles
+      Handler: index.GetDevelopers
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+
+  RTWGetDeveloper:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingDeveloperProfiles
+    Properties:
+      Code:
+        S3Bucket: rtwbackendbucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDeveloper.zip"] ]
+      Description: "Get RTW Developer"
+      FunctionName: "RTWGetDeveloper"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingDeveloperProfiles
+      Handler: index.GetDeveloper
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+
+  RTWPostDeveloper:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingDeveloperProfiles
+    Properties:
+      Code:
+        S3Bucket: rtwbackendbucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostDeveloper.zip"] ]
+      Description: "Post RTW Developer"
+      FunctionName: "RTWPostDeveloper"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingDeveloperProfiles
+      Handler: index.PostDeveloper
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+
+# AWS::DynamoDB::Table = DynamoDB tables.  They must specify at least one primary key.  The primary
+# key has to be unique across all records in the table, so we specify type HASH.
+  RecursiveThinkingDeveloperProfiles:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Username"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Username"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 20
+        WriteCapacityUnits: 20
+      TableName: "RecursiveThinkingDeveloperProfiles"
+
+# AWS::S3::Bucket = S3 bucket. Is used by our python script to store Lambda Code Zips.  We upload those
+# zips with our python script and then reference the zips in our lambdas code source in this template.
+  RTWBackendCodeBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: rtwbackendbucket
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET]
+            AllowedOrigins: ['*']
+            ExposedHeaders: [Date]
+
+# These are our outputs to show after running our python script.  We can paste the
+# cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
+# specific resource.  We can use the API Gateway ID as the base of the URL that we make
+# all our api calls to.  This allows us to set these values when we want to test on one
+# 'stack' (instance of the architecture in this template).  We will have a 'beta' stack
+# and a 'prod' stack.  Allows us to change these values in the webapp when we want to
+# test things out and not break the 'prod' stack.  Which stack gets built and what is
+# output is specified by passing the --stage beta or --stage '' to our Python script.
+Outputs:
+
+  CognitoUserPoolId:
+    Description: The cognito user pool id
+    Value: !Ref RecursiveThinkingUserPool
+    Export:
+      Name: CognitoUserPoolIdentifier
+
+  APIGatewayId:
+    Description: The base id of the api, used for constructing the api url to make requests
+    Value: !Ref RecursiveThinkingAPI
+    Export:
+      Name: APIGatewayIdentifier
+
+  CognitoClientId:
+    Description: The id of the client (app) connected to cognito
+    Value: !Ref RecursiveThinkingUserPoolClient
+    Export:
+      Name: CognitoUserPoolClientIdentifier
