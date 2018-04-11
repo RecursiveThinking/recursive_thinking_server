@@ -1,0 +1,33 @@
+RTW Backend
+
+Setup:
+
+AWS CLI
+https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
+
+Postman
+https://www.getpostman.com/
+
+RTW Frontend
+https://github.com/RecursiveThinking/recursive_thinking_website
+
+
+Deploy your changes to the CloudFormation Stack
+See deployrtw.py
+
+Test
+1. Visit FrontEnd Home Page localhost:8080/#home
+2. Sign In / Sign Up to obtain Cognito Credential
+3. Open dev tools, Application under local storage find CognitoIdentityServiceProvider.idToken
+4. Open Postman - api url https://98ktoygyjj.execute-api.us-west-2.amazonaws.com/Prod
+5. Add /developers or whatever resource you want to test
+6. Add GET or POST for whatever method you want to test
+7. Add Authorization under headers and as value add the token from your local storage
+
+Login to AWS Console
+1. Visit the Lambda Console and find the function that is invoked by your api test
+2. Click test once on the Lambda page, should show an alert with a link to 'Logs'
+3. Once on CloudWatch logs use Postman to test and check logs, change lambda code in
+console and save.  When you are satisfied with code, change it in template.yml and
+re-run the deployrtw.py script.
+
