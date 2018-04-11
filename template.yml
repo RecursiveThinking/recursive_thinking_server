@@ -282,12 +282,14 @@ Resources:
 
 # These are our outputs to show after running our python script.  We can paste the
 # cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
-# specific resource.  We can use the API Gateway ID as the base of the URL that we make
-# all our api calls to.  This allows us to set these values when we want to test on one
-# 'stack' (instance of the architecture in this template).  We will have a 'beta' stack
+# specific resource with AWS Amplify library (our auth).  We can use the API Gateway ID
+# as the base of the URL that we make all our api calls to.
+# This allows us to set these values when we want to test on one 'stack' or
+# instance of the architecture in this template.  We will have a 'beta' stack
 # and a 'prod' stack.  Allows us to change these values in the webapp when we want to
 # test things out and not break the 'prod' stack.  Which stack gets built and what is
 # output is specified by passing the --stage beta or --stage '' to our Python script.
+# for now just dont pass --stage because stuffs not in production yet.
 Outputs:
 
   CognitoUserPoolId:
