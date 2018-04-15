@@ -97,6 +97,13 @@ Resources:
       PathPart: "{id}"
       RestApiId: !Ref RecursiveThinkingAPI
 
+  RecursiveThinkingAPIResourceLessons:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
+      PathPart: "lessons"
+      RestApiId: !Ref RecursiveThinkingAPI
+
 # AWS::ApiGateway::Method = The HTTP Method that gets attached to a API Gateway Resource.
 # Could be GET, POST, PUT, DELETE ... etc.  We define that the method will be a proxy,
 # meaning it will route all requests to a Lambda for processing.  We also define to use
@@ -115,6 +122,21 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDevelopers.Arn}/invocations
+
+  RecursiveThinkingAPIResourceLessonsGETMethod:
+     Type: "AWS::ApiGateway::Method"
+     DependsOn: RecursiveThinkingAuthorizer
+     Properties:
+       ApiKeyRequired: False
+       AuthorizationType: "COGNITO_USER_POOLS"
+       AuthorizerId: !Ref RecursiveThinkingAuthorizer
+       HttpMethod: "GET"
+       ResourceId: !Ref RecursiveThinkingAPIResourceLessons
+       RestApiId: !Ref RecursiveThinkingAPI
+       Integration:
+         Type: AWS_PROXY
+         IntegrationHttpMethod: POST
+         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetLessons.Arn}/invocations
 
   RecursiveThinkingAPIResourceDevelopersPOSTDeveloperMethod:
     Type: "AWS::ApiGateway::Method"
@@ -170,25 +192,32 @@ Resources:
 # Action = IAM action ( in this case lambda:* ) meaning anything, we prob just need lambda:Invoke.
 # FunctionName = Name of function to attach the permission to.
 # Principal = The service that will have permission to invoke the function.
-  RecursiveThinkingLambdaPermission:
+  RecursiveThinkingLambdaGetDevelopersPermission:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: lambda:*
       FunctionName: !Ref RTWGetDevelopers
       Principal: apigateway.amazonaws.com
 
-  RecursiveThinkingLambdaPermission:
+  RecursiveThinkingLambdaGetDeveloperPermission:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: lambda:*
       FunctionName: !Ref RTWGetDeveloper
       Principal: apigateway.amazonaws.com
 
-  RecursiveThinkingLambdaPermission:
+  RecursiveThinkingLambdaPostDeveloperPermission:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: lambda:*
       FunctionName: !Ref RTWPostDeveloper
+      Principal: apigateway.amazonaws.com
+
+  RecursiveThinkingLambdaGetLessonsPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWGetLessons
       Principal: apigateway.amazonaws.com
 
 
@@ -210,6 +239,24 @@ Resources:
         Variables:
           TABLE: !Ref RecursiveThinkingDeveloperProfiles
       Handler: index.GetDevelopers
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+
+  RTWGetLessons:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingDeveloperProfiles
+    Properties:
+      Code:
+        S3Bucket: rtwbackendbucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessons.zip"] ]
+      Description: "Get RTW Lessons"
+      FunctionName: "RTWGetLessons"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingLessonsTable
+      Handler: index.GetLessons
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
       Runtime: nodejs8.10
@@ -266,6 +313,20 @@ Resources:
         ReadCapacityUnits: 20
         WriteCapacityUnits: 20
       TableName: "RecursiveThinkingDeveloperProfiles"
+
+  RecursiveThinkingLessonsTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 20
+        WriteCapacityUnits: 20
+      TableName: "RecursiveThinkingLessonsTable"
 
 # AWS::S3::Bucket = S3 bucket. Is used by our python script to store Lambda Code Zips.  We upload those
 # zips with our python script and then reference the zips in our lambdas code source in this template.
