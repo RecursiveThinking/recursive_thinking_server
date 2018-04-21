@@ -1,7 +1,7 @@
 const aws = require('aws-sdk');
 const dynamodb = new aws.DynamoDB.DocumentClient();
 
-exports.PostDeveloper = (event, context, callback) => {
+exports.PostDeveloperById = (event, context, callback) => {
 
     console.log(JSON.stringify(event));
 
