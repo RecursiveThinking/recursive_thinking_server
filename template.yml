@@ -221,7 +221,7 @@ Resources:
 
 # METHODOLOGY
 # ================================================================
-# RecursiveThinkingAPIResource + /PATH/ + "METHOD" + Method: 
+# RecursiveThinkingAPIResource + /PATH/ + "METHOD" + Method:
 # RecursiveThinkingAPIResource + Lessons + GET + Method:
 # ================================================================
 
@@ -963,8 +963,8 @@ Resources:
         - AttributeName: "Username"
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 20
-        WriteCapacityUnits: 20
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
       TableName: "RecursiveThinkingDeveloperProfiles"
 # ================================================================
 # DYNAMODB - /lessons/
@@ -979,8 +979,8 @@ Resources:
         - AttributeName: "Id"
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 20
-        WriteCapacityUnits: 20
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
       TableName: "RecursiveThinkingTableLessons"
 # ================================================================
 # DYNAMODB - /interviewQuestions/
@@ -995,8 +995,8 @@ Resources:
         - AttributeName: "Id"
           KeyType: HASH
       ProvisionedThroughput:
-        ReadCapacityUnits: 20
-        WriteCapacityUnits: 20
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
       TableName: "RecursiveThinkingTableInterviewQuestions"
 # ================================================================
 # DYNAMODB - /interviewQuestions/{id}/answers/
@@ -1011,8 +1011,8 @@ Resources:
   #       - AttributeName: "Id"
   #         KeyType: HASH
   #     ProvisionedThroughput:
-  #       ReadCapacityUnits: 20
-  #       WriteCapacityUnits: 20
+  #       ReadCapacityUnits: 1
+  #       WriteCapacityUnits: 1
   #     TableName: "RecursiveThinkingTableInterviewQuestionsAnswers"
 
 # AWS::S3::Bucket = S3 bucket. Is used by our python script to store Lambda Code Zips.  We upload those
