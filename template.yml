@@ -1,6 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 Parameters:
 
+  AssetS3Bucket:
+    Type: String
+
   LambdaFolder:
     Description: Folder that contains Backend Lambda code
     MaxLength: 60
@@ -75,10 +78,22 @@ Resources:
   RecursiveThinkingAPI:
     Type: "AWS::ApiGateway::RestApi"
     Properties:
-      Name: "RTWAPI"
+      Name: "RecursiveThinkingAPI"
       EndpointConfiguration:
         Types:
           - "REGIONAL"
+
+  RecursiveThinkingAPIStageProd:
+    Type: "AWS::ApiGateway::Stage"
+    Properties:
+      DeploymentId: !Ref RecursiveThinkingAPIDeployment
+      RestApiId: !Ref RecursiveThinkingAPI
+      StageName: "Prod"
+
+  RecursiveThinkingAPIDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    Properties:
+      RestApiId: !Ref RecursiveThinkingAPI
 
 # AWS::ApiGateway::Resource = The resources we define for our API.  These are equivelant
 # to the URL path we make the request to. e.g. BASEAPIURL.com/resourcepath where
@@ -507,7 +522,6 @@ Resources:
       RestApiId: !Ref RecursiveThinkingAPI
       Type: "COGNITO_USER_POOLS"
 
-
 # AWS::Lambda::Permission = Lambda Functions need this to allow other AWS Services
 # to invoke them.  In this case we specify API Gateway as the principal so that our
 # functions can be invoked by our API.  We can have as many of these attached to a
@@ -634,7 +648,7 @@ Resources:
       Principal: apigateway.amazonaws.com
 
 
-# AWS::Lambda::Function = Lambda functions! We point to the rtwbackendbucket and a zip file equal
+# AWS::Lambda::Function = Lambda functions! We point to the AssetS3Bucket and a zip file equal
 # to the functions name, as our code source.  (This all gets created in our Python Script).
 # Our functions need the DynamoDB Table name as an environment variable so we DependsOn that.
 # The role defined here is a reference to an IAM role the function will assume, it gives
@@ -655,7 +669,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDevelopers.zip"] ]
       Description: "Get RTW Developers"
       FunctionName: "RTWGetDevelopers"
@@ -675,7 +689,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDeveloperById.zip"] ]
       Description: "Get RTW Developer By Id"
       FunctionName: "RTWGetDeveloperById"
@@ -695,7 +709,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostDeveloperById.zip"] ]
       Description: "Post RTW Developer By Id"
       FunctionName: "RTWPostDeveloperById"
@@ -715,7 +729,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDeveloperByIdEdit.zip"] ]
       Description: "Get RTW Developer By Id Edit"
       FunctionName: "RTWGetDeveloperByIdEdit"
@@ -735,7 +749,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostDeveloperByIdEdit.zip"] ]
       Description: "Post RTW Developer By Id Edit"
       FunctionName: "RTWPostDeveloperByIdEdit"
@@ -755,7 +769,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessons.zip"] ]
       Description: "Get RTW Lessons"
       FunctionName: "RTWGetLessons"
@@ -775,7 +789,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessonById.zip"] ]
       Description: "Get RTW Lesson By Id"
       FunctionName: "RTWGetLessonById"
@@ -795,7 +809,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostLessonById.zip"] ]
       Description: "Post RTW Lesson By Id"
       FunctionName: "RTWPostLessonById"
@@ -815,7 +829,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessonByIdEdit.zip"] ]
       Description: "Get RTW Lesson By Id Edit"
       FunctionName: "RTWGetLessonByIdEdit"
@@ -835,7 +849,7 @@ Resources:
     DependsOn: RecursiveThinkingDeveloperProfiles
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostLessonByIdEdit.zip"] ]
       Description: "Post RTW Lesson By Id Edit"
       FunctionName: "RTWPostLessonByIdEdit"
@@ -855,7 +869,7 @@ Resources:
     DependsOn: RecursiveThinkingTableInterviewQuestions
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetInterviewQuestions.zip"] ]
       Description: "Get RTW Interview Questions"
       FunctionName: "RTWGetInterviewQuestions"
@@ -875,7 +889,7 @@ Resources:
     DependsOn: RecursiveThinkingTableInterviewQuestions
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetInterviewQuestionById.zip"] ]
       Description: "Get RTW Interview Question By Id"
       FunctionName: "RTWGetInterviewQuestionById"
@@ -895,7 +909,7 @@ Resources:
     DependsOn: RecursiveThinkingTableInterviewQuestions
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostInterviewQuestionById.zip"] ]
       Description: "Post RTW Interview Question By Id"
       FunctionName: "RTWPostInterviewQuestionById"
@@ -915,7 +929,7 @@ Resources:
     DependsOn: RecursiveThinkingTableInterviewQuestions
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetInterviewQuestionByIdEdit.zip"] ]
       Description: "Get RTW Interview Question By Id Edit"
       FunctionName: "RTWGetInterviewQuestionByIdEdit"
@@ -935,7 +949,7 @@ Resources:
     DependsOn: RecursiveThinkingTableInterviewQuestions
     Properties:
       Code:
-        S3Bucket: rtwbackendbucket
+        S3Bucket: !Ref AssetS3Bucket
         S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostInterviewQuestionByIdEdit.zip"] ]
       Description: "Post RTW Interview Question By Id Edit"
       FunctionName: "RTWPostInterviewQuestionByIdEdit"
@@ -1014,19 +1028,6 @@ Resources:
   #       ReadCapacityUnits: 1
   #       WriteCapacityUnits: 1
   #     TableName: "RecursiveThinkingTableInterviewQuestionsAnswers"
-
-# AWS::S3::Bucket = S3 bucket. Is used by our python script to store Lambda Code Zips.  We upload those
-# zips with our python script and then reference the zips in our lambdas code source in this template.
-  RTWBackendCodeBucket:
-    Type: AWS::S3::Bucket
-    Properties:
-      BucketName: rtwbackendbucket
-      CorsConfiguration:
-        CorsRules:
-          - AllowedHeaders: ['*']
-            AllowedMethods: [GET]
-            AllowedOrigins: ['*']
-            ExposedHeaders: [Date]
 
 # These are our outputs to show after running our python script.  We can paste the
 # cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
