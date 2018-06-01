@@ -91,9 +91,14 @@ Resources:
       StageName: "Prod"
 
   RecursiveThinkingAPIDeployment:
+    DependsOn: 
+    - "RecursiveThinkingAPIResourceDevelopersGETMethod"
+    - "RecursiveThinkingAPIResourceLessonsGETMethod"
     Type: "AWS::ApiGateway::Deployment"
     Properties:
       RestApiId: !Ref RecursiveThinkingAPI
+      
+# The two lines above are problematic:  RecursiveThinkingAPIStageProd and RecursiveThinkingAPIDeployment
 
 # AWS::ApiGateway::Resource = The resources we define for our API.  These are equivelant
 # to the URL path we make the request to. e.g. BASEAPIURL.com/resourcepath where
