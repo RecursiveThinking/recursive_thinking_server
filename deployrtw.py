@@ -54,3 +54,5 @@ print(" {0} : {1}".format(stack_response["Stacks"][0]["Outputs"][0]["OutputKey"]
 print(" {0} : {1}".format(stack_response["Stacks"][0]["Outputs"][1]["OutputKey"], stack_response["Stacks"][0]["Outputs"][1]["OutputValue"]))
 print(" {0} : {1}".format(stack_response["Stacks"][0]["Outputs"][2]["OutputKey"], stack_response["Stacks"][0]["Outputs"][2]["OutputValue"]))
 print("BASE API URL : https://{0}.execute-api.us-west-2.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"]))
+call('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod'.format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"]), shell=True)
+
