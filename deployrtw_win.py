@@ -18,7 +18,7 @@ if sys.version_info < (3, 0):
     s3BucketName = 'recursive-thinking-server-assets-' + check_output("git config --global user.email", shell=True).replace('@','-at-').replace('.', '-dot-').rstrip()
 else:
     s3BucketName = 'recursive-thinking-server-assets-' + str(check_output("git config --global user.email", shell=True), 'utf-8').replace('@','-at-').replace('.', '-dot-').rstrip()
-    
+
 # Run this script from its directory in your cli:
 # ./deployrtw.py --lambdas ./lambdas --template file://template.yml
 
@@ -53,7 +53,7 @@ for subdir in os.listdir(args.assets):
     # lambda_path = "{0}/{1}".format(args.lambdas, subdir)
     # lambda_path = os.path.join(args.lambdas, subdir)
     # print(lambda_path)
-    
+
     if os.path.isdir(lambda_path):
         # zip_file_path = shutil.make_archive(subdir, 'zip', lambda_path)
         shutil.make_archive(subdir, 'zip', lambda_path)
@@ -125,3 +125,4 @@ print("BASE API URL : https://{0}.execute-api.us-west-2.amazonaws.com/Prod".form
 # print(" {0} : {1}".format(stack_response["Stacks"][0], stack_response["Stacks"][0]))
 # print(" {0} : {1}".format(stack_response["Stacks"][0], stack_response["Stacks"][0]))
 # print("BASE API URL : https://{0}.execute-api.us-west-2.amazonaws.com/Prod".format(stack_response["Stacks"][0]))
+call('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod'.format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"]), shell=True)
