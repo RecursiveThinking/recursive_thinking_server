@@ -66,93 +66,13 @@ Resources:
         AttributeDataType: String
         Mutable: false
         Required: true
-      - Name: name
-        AttributeDataType: String
-        Mutable: false
-        Required: true
-      - Name: picture
-        AttributeDataType: String
-        Mutable: false
-        Required: true
-      - Name: website
-        AttributeDataType: String
-        Mutable: false
-        Required: true
       - Name: username
         AttributeDataType: String
+        Required: true
         Mutable: true
         StringAttributeConstraints:
           MinLength: 1
           MaxLength: 32
-      - Name: bio
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 1000
-      - Name: quote
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 256
-      - Name: city
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 32
-      - Name: state
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 24
-      - Name: experience
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 64
-      - Name: title
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 64
-      - Name: rank
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 1
-      - Name: linkedin
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 100
-
-      # - Name: name
-      #   AttributeDataType: String
-      #   Mutable: true
-      #   StringAttributeConstraints:
-      #     MinLength: 1
-      #     MaxLength: 64
-
-
-
-# - Name: custom:name
-#   AttributeDataType: String
-#   Required: true
-#   Mutable: true
-#   NumberAttributeConstraints:
-#     MaxValue: String
-#     MinValue: String
-#   StringAttributeConstraints:
-#     MaxLength: String
-#     MinLength: String
-
 
 # AWS::Cognito::UserPoolClient = This is essentially our Web App which is a client
 # of our user pool.  We can define the refresh token validity and thats about it.
