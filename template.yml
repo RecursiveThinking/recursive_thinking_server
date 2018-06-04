@@ -61,98 +61,18 @@ Resources:
           RequireSymbols: False
           RequireUppercase: False
       UserPoolName: RecursiveThinkingUserPool
-      Schema:
-      - Name: email
-        AttributeDataType: String
-        Mutable: false
-        Required: true
-      - Name: name
-        AttributeDataType: String
-        Mutable: false
-        Required: true
-      - Name: picture
-        AttributeDataType: String
-        Mutable: false
-        Required: true
-      - Name: website
-        AttributeDataType: String
-        Mutable: false
-        Required: true
-      - Name: username
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 32
-      - Name: bio
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 1000
-      - Name: quote
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 256
-      - Name: city
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 32
-      - Name: state
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 24
-      - Name: experience
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 64
-      - Name: title
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 64
-      - Name: rank
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 1
-      - Name: linkedin
-        AttributeDataType: String
-        Mutable: true
-        StringAttributeConstraints:
-          MinLength: 1
-          MaxLength: 100
-
-      # - Name: name
+      # Schema:
+      # - Name: email
       #   AttributeDataType: String
-      #   Mutable: true
+      #   Mutable: false
+      #   Required: true
+      # - Name: username
+      #   AttributeDataType: String
+      #   Required: true
+      #   Mutable: false
       #   StringAttributeConstraints:
       #     MinLength: 1
-      #     MaxLength: 64
-
-
-
-# - Name: custom:name
-#   AttributeDataType: String
-#   Required: true
-#   Mutable: true
-#   NumberAttributeConstraints:
-#     MaxValue: String
-#     MinValue: String
-#   StringAttributeConstraints:
-#     MaxLength: String
-#     MinLength: String
-
+      #     MaxLength: 32
 
 # AWS::Cognito::UserPoolClient = This is essentially our Web App which is a client
 # of our user pool.  We can define the refresh token validity and thats about it.
@@ -175,21 +95,6 @@ Resources:
         Types:
           - "REGIONAL"
 
-#  RecursiveThinkingAPIStageProd:
-#    Type: "AWS::ApiGateway::Stage"
-#    Properties:
-#      DeploymentId: !Ref RecursiveThinkingAPIDeployment
-#      RestApiId: !Ref RecursiveThinkingAPI
-#      StageName: "Prod"
-
-#  RecursiveThinkingAPIDeployment:
-#    DependsOn:
-#    - "RecursiveThinkingAPIResourceDevelopersGETMethod"
-#    - "RecursiveThinkingAPIResourceLessonsGETMethod"
-#    Type: "AWS::ApiGateway::Deployment"
-#    Properties:
-#      RestApiId: !Ref RecursiveThinkingAPI
-#
 # The two lines above are problematic:  RecursiveThinkingAPIStageProd and RecursiveThinkingAPIDeployment
 
 # AWS::ApiGateway::Resource = The resources we define for our API.  These are equivelant
@@ -364,6 +269,38 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDevelopers.Arn}/invocations
+        
+  RecursiveThinkingAPIResourceDevelopersGETMethodCORSOptions:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      RestApiId:
+        Ref: RecursiveThinkingAPI
+      ResourceId:
+        Ref: RecursiveThinkingAPIResourceDevelopers
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
+        
 # ================================================================
 # GET - /developers/{id}
 # ================================================================
@@ -449,6 +386,36 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetLessons.Arn}/invocations
+  RecursiveThinkingAPIResourceLessonsGETMethodCORSOptions:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      RestApiId:
+        Ref: RecursiveThinkingAPI
+      ResourceId:
+        Ref: RecursiveThinkingAPIResourceLessons
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
 # ================================================================
 # GET - /lessons/{id}
 # ================================================================
@@ -534,6 +501,37 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetInterviewQuestions.Arn}/invocations
+        
+  RecursiveThinkingAPIResourceInterviewQuestionsGETMethodCORSOptions:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      RestApiId:
+        Ref: RecursiveThinkingAPI
+      ResourceId:
+        Ref: RecursiveThinkingAPIResourceInterviewQuestions
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
 # ================================================================
 # GET - /interviewQuestions/{id}
 # ================================================================
