@@ -65,7 +65,7 @@ for subdir in os.listdir(args.assets):
         # subprocess.call("rm -f {0}".format(zip_file_path), shell=True)
         # new
         call("aws s3 cp {0} s3://{1}/{2}/".format(zip_file_path, args.s3bucket, build_dir), shell=True)
-        call("rm -f {0}".format(zip_file_path), shell=True)
+        # call("rm -f {0}".format(zip_file_path), shell=True)
 
 # time.sleep(3)
 # old
