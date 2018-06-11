@@ -73,7 +73,7 @@ for subdir in os.listdir(args.assets):
 
 # new
 # execute the cloudformation update
-call("aws cloudformation deploy --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3}".format(args.stage, args.template, build_dir, args.s3bucket), shell=True)
+call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3}".format(args.stage, args.template, build_dir, args.s3bucket), shell=True)
 
 # stack_status = check_stack_status("rtwbackend")
 # count = 0
