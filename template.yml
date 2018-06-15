@@ -1259,10 +1259,10 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
-        - AttributeName: "Username"
+        - AttributeName: "userId"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "Username"
+        - AttributeName: "userId"
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 1
