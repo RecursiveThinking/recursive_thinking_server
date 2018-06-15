@@ -24,7 +24,7 @@ exports.PostDeveloperById = (event, context, callback) => {
 
     const params = {
         Item: {
-            Username: event.requestContext.authorizer.claims["cognito:username"],
+            username: event.requestContext.authorizer.claims["cognito:username"],
             email: event.requestContext.authorizer.claims.email,
             name: event.requestContext.authorizer.claims.name,
             userId: event.requestContext.authorizer.claims.sub
