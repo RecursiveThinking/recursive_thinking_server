@@ -70,10 +70,10 @@ credentials = {
 
 # print stack info in json format (so it can easily be copy-pasted)
 credentialsString = json.dumps(credentials, indent=2, sort_keys=True)
-print ''
-print 'Secrets: '
-print credentialsString
-print ''
+print('')
+print('Secrets: ')
+print(credentialsString)
+print('')
 
 # now try to put that into a file
 # Check to see if the folder specified by the command is a real folder. 
@@ -101,7 +101,7 @@ if os.path.isdir(maybeWebsitePath): # if maybeWebsitePath is a real folder...
     cognitoSecrets.write(credentialsString)
     cognitoSecrets.close()
 
-    print 'Wrote secrets to {0}'.format(cognitoSecretsPath)
-    print "If this isn't what you expected, please use the --website-directory argument."
+    print('Wrote secrets to {0}'.format(cognitoSecretsPath))
+    print("If this isn't what you expected, please use the --website-directory argument.")
 else:
-    print "Failed to write secrets. Please copy the secrets output above to recursive_thinking_website/secrets/cognitoSecrets.json"
+    print("Failed to write secrets. Please copy the secrets output above to recursive_thinking_website/secrets/cognitoSecrets.json")
