@@ -19,6 +19,12 @@
 3. Test your changes.
 4. Repeat (probably).
 
+### Node Lambda
+
+If you can write your Lambda function in JS without importing npm, packages, no further additional config is needed. If, however, you need (or want) to import npm packages like `lodash` or `aws-amplify`, you'll need to add some lines to the `webpack.config.js` file.
+
+For now, see the existing examples in `webpack.config.js` for how to add your function.
+
 ## Testing
 
 Deploying to CloudFormation will expose an API endpoint. To test what it does, use a tool like Postman.
