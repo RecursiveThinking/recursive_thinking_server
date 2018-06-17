@@ -43,6 +43,8 @@ if s3bucket == None:
 call('aws s3 mb "s3://{0}" --region={1}'.format(s3bucket, args.region), shell=True)
 
 # upload lambda assets
+# NOTE: we're using posixpath here for cross-compatibility b/c python doesn't seem to care
+# and s3 needs the paths to be in posix format (i.e. Mac or Linux but not Windows)
 build_dir = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d%H%M%S')
 for subdir in os.listdir(args.assets):
     lambda_path = posixpath.join(args.assets, subdir)
