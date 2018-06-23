@@ -40,7 +40,9 @@ if s3bucket == None:
         s3bucket = 'recursive-thinking-assets-' + args.region + '-' + str(check_output("git config --global user.email", shell=True), 'utf-8').replace('@','-').replace('.', '-').rstrip()
 
 # make the s3 bucket (seems to fail silently if the bucket is already made, so yay!)
-call('aws s3 mb "s3://{0}" --region={1}'.format(s3bucket, args.region), shell=True)
+cmd_makeS3Bucket = 'aws s3 mb "s3://{0}" --region={1}'.format(s3bucket, args.region)
+print(cmd_makeS3Bucket)
+call(cmd_makeS3Bucket, shell=True)
 
 # upload lambda assets
 # NOTE: we're using posixpath here for cross-compatibility b/c python doesn't seem to care
@@ -55,13 +57,19 @@ for subdir in os.listdir(args.assets):
         call("rm -f {0}".format(zip_file_path), shell=True)
 
 # execute the cloudformation update
-call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3} --region={4}".format(args.stage, args.template, build_dir, s3bucket, args.region), shell=True)
+cmd_deployCloudformation = "aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3} --region={4}".format(args.stage, args.template, build_dir, s3bucket, args.region)
+print(cmd_deployCloudformation)
+call(cmd_deployCloudformation, shell=True)
 
 # get stack info
-status = check_output("aws cloudformation describe-stacks --stack-name {0} --region={1}".format("recursive-thinking-server", args.region), shell=True)
+cmd_getStackOutput = "aws cloudformation describe-stacks --stack-name {0} --region={1}".format("recursive-thinking-server", args.region)
+print(cmd_getStackOutput)
+status = check_output(cmd_getStackOutput, shell=True)
 stack_response = json.loads(status)
 
-check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region), shell=True)
+cmd_deployApi = 'aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region)
+print(cmd_deployApi)
+check_output(cmd_deployApi, shell=True)
 
 credentials = {
   "region": args.region,
