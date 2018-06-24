@@ -1,8 +1,12 @@
 const _ = require('lodash')
+const webpack = require('webpack')
 
 // base config -- inherited by ALL configs
 const base = {
-  target: 'node'  
+  target: 'node',
+  plugins: [
+    new webpack.IgnorePlugin(/^encoding$/, /node-fetch/)
+  ]
 }
 
 // container for the output configs
