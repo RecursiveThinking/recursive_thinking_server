@@ -5,7 +5,7 @@ exports.GetDeveloperById = (event, context, callback) => {
 
     const params = {
         Key: {
-            Username: event.requestContext.authorizer.claims["cognito:username"]
+            userId: event.requestContext.authorizer.claims.sub
         },
         TableName : process.env.TABLE
     };
@@ -15,13 +15,15 @@ exports.GetDeveloperById = (event, context, callback) => {
             context.succeed({
                 statusCode: 501,
                 body: JSON.stringify({ message: 'There was an error when calling DynamoDB' }),
-                headers: {'Content-Type': 'text/plain'}
+                headers: {'Content-Type': 'text/plain',
+                'Access-Control-Allow-Origin': '*'}
             });
         } else {
             context.succeed({
                 statusCode: 200,
                 body: JSON.stringify(data),
-                headers: {'Content-Type': 'application/json'}
+                headers: {'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'}
             });
         }
     });

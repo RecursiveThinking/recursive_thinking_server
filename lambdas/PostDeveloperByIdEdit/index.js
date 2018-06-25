@@ -28,7 +28,7 @@ exports.PostDeveloperByIdEdit = (event, context, callback) => {
     let keys = Object.keys(body);
 
     keys.reduce((Item, key) => {
-        if(body[key] && typeof body[key] === "string" && body[key].length > 0){
+        if (body[key] && typeof body[key] === "string" && body[key].length > 0) {
             Item[key] = body[key];
         }
         return Item;
@@ -49,7 +49,8 @@ exports.PostDeveloperByIdEdit = (event, context, callback) => {
             return context.succeed({
                 statusCode: 501,
                 body: JSON.stringify({
-                    message: 'There was an error when calling DynamoDB'
+                    message: 'There was an error when calling DynamoDB',
+                    error: err
                 }),
                 headers: {
                     'Content-Type': 'text/plain',
@@ -58,14 +59,38 @@ exports.PostDeveloperByIdEdit = (event, context, callback) => {
             });
         } else {
             console.log(data);
-            return context.succeed({
-                statusCode: 200,
-                body: JSON.stringify(data),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
+            dynamodb.get({
+                    Key: {
+                        userId: event.requestContext.authorizer.claims.sub
+                    },
+                    TableName: process.env.TABLE
+                },
+                function (err, data) {
+                    if (err) {
+                        console.log(err);
+                        return context.succeed({
+                            statusCode: 501,
+                            body: JSON.stringify({
+                                message: 'There was an error when calling DynamoDB',
+                                error: err
+                            }),
+                            headers: {
+                                'Content-Type': 'text/plain',
+                                'Access-Control-Allow-Origin': '*'
+                            }
+                        });
+                    } else {
+                        return context.succeed({
+                            statusCode: 200,
+                            body: JSON.stringify(data),
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Access-Control-Allow-Origin': '*'
+                            }
+                        });
+                    }
                 }
-            });
+            )
         }
     });
 
