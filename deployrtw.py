@@ -57,11 +57,28 @@ call('aws s3 mb "s3://{0}" --region={1}'.format(s3bucket, args.region), shell=Tr
 build_dir = datetime.datetime.fromtimestamp(time.time()).strftime('%Y%m%d%H%M%S')
 for subdir in os.listdir(args.assets):
     print("")
-    lambda_path = posixpath.join(args.assets, subdir)
+    # ------------------------------ START FOR MAC -----------------------------
+    # -- IF YOU ARE ON MAC - TURN BTWN START/END ON AND BTWN START/END PC OFF --
+    # lambda_path = posixpath.join(args.assets, subdir)
 
-    if posixpath.isdir(lambda_path):
-        zip_file_path = shutil.make_archive(subdir, 'zip', lambda_path)
+    # if posixpath.isdir(lambda_path):
+    #     zip_file_path = shutil.make_archive(subdir, 'zip', lambda_path)
+    #     call("aws s3 cp {0} s3://{1}/{2}/".format(zip_file_path, s3bucket, build_dir), shell=True)
+    
+    # ------------------------------- END FOR MAC ------------------------------
+    
+    # ------------------------------ START FOR PC ------------------------------
+    # -- IF YOU ARE ON PC - TURN BTWN START/END ON AND BTWN START/END MAC OFF --
+    lambda_path = "{0}/{1}".format(args.assets, subdir)
+
+    if os.path.isdir(lambda_path):
+        shutil.make_archive(subdir, 'zip', lambda_path)
+        zip_file_path = "./{0}{1}".format(subdir, '.zip')
         call("aws s3 cp {0} s3://{1}/{2}/".format(zip_file_path, s3bucket, build_dir), shell=True)
+        
+    # ------------------------------- END FOR PC -------------------------------
+            
+        # Do you want to see the .zip files?  IF SO, KEEP BELOW ON.  IF NOT, COMMENT BELOW OUT
         call("rm -f {0}".format(zip_file_path), shell=True)
 
 # execute the cloudformation update
