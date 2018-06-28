@@ -84,6 +84,9 @@ for subdir in os.listdir(args.assets):
 # execute the cloudformation update
 call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3} --region={4}".format(args.stage, args.template, build_dir, s3bucket, args.region), shell=True)
 
+# call("aws dynamodb batch-write-item --request-items file://RecursiveThinkingProfileSkillsProfessional.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json")
+
 # get stack info
 status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server", args.region), shell=True)
 stack_response = json.loads(status)
@@ -91,10 +94,10 @@ stack_response = json.loads(status)
 check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region), shell=True)
 
 credentials = {
-  "region": args.region,
-  "userPoolId": stack_response["Stacks"][0]["Outputs"][0]["OutputValue"],
-  "userPoolWebClientId": stack_response["Stacks"][0]["Outputs"][1]["OutputValue"],
-  "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region)
+    "region": args.region,
+    "userPoolId": stack_response["Stacks"][0]["Outputs"][0]["OutputValue"],
+    "userPoolWebClientId": stack_response["Stacks"][0]["Outputs"][1]["OutputValue"],
+    "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region)
 }
 
 # print stack info in json format (so it can easily be copy-pasted)
