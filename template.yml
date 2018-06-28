@@ -1063,7 +1063,7 @@ Resources:
       FunctionName: "RTWGetLessons"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableLessons
+          TABLE: !Ref RecursiveThinkingLessons
       Handler: index.GetLessons
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1083,7 +1083,7 @@ Resources:
       FunctionName: "RTWGetLessonById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableLessons
+          TABLE: !Ref RecursiveThinkingLessons
       Handler: index.GetLessonById
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1103,7 +1103,7 @@ Resources:
       FunctionName: "RTWPostLessonById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableLessons
+          TABLE: !Ref RecursiveThinkingLessons
       Handler: index.PostLessonById
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1123,7 +1123,7 @@ Resources:
       FunctionName: "RTWGetLessonByIdEdit"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableLessons
+          TABLE: !Ref RecursiveThinkingLessons
       Handler: index.GetLessonByIdEdit
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1143,7 +1143,7 @@ Resources:
       FunctionName: "RTWPostLessonByIdEdit"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableLessons
+          TABLE: !Ref RecursiveThinkingLessons
       Handler: index.PostLessonByIdEdit
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1154,7 +1154,7 @@ Resources:
 # ================================================================
   RTWGetInterviewQuestions:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingTableInterviewQuestions
+    DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetS3Bucket
@@ -1163,7 +1163,7 @@ Resources:
       FunctionName: "RTWGetInterviewQuestions"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableInterviewQuestions
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
       Handler: index.GetInterviewQuestions
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1174,7 +1174,7 @@ Resources:
 # ================================================================
   RTWGetInterviewQuestionById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingTableInterviewQuestions
+    DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetS3Bucket
@@ -1183,7 +1183,7 @@ Resources:
       FunctionName: "RTWGetInterviewQuestionById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableInterviewQuestions
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
       Handler: index.GetInterviewQuestionById
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1194,7 +1194,7 @@ Resources:
 # ================================================================
   RTWPostInterviewQuestionById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingTableInterviewQuestions
+    DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetS3Bucket
@@ -1203,7 +1203,7 @@ Resources:
       FunctionName: "RTWPostInterviewQuestionById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableInterviewQuestions
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
       Handler: index.PostInterviewQuestionById
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1214,7 +1214,7 @@ Resources:
 # ================================================================
   RTWGetInterviewQuestionByIdEdit:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingTableInterviewQuestions
+    DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetS3Bucket
@@ -1223,7 +1223,7 @@ Resources:
       FunctionName: "RTWGetInterviewQuestionByIdEdit"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableInterviewQuestions
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
       Handler: index.GetInterviewQuestionByIdEdit
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1234,7 +1234,7 @@ Resources:
 # ================================================================
   RTWPostInterviewQuestionByIdEdit:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingTableInterviewQuestions
+    DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetS3Bucket
@@ -1243,7 +1243,7 @@ Resources:
       FunctionName: "RTWPostInterviewQuestionByIdEdit"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingTableInterviewQuestions
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
       Handler: index.PostInterviewQuestionByIdEdit
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
@@ -1271,7 +1271,7 @@ Resources:
 # ================================================================
 # DYNAMODB - /lessons/
 # ================================================================
-  RecursiveThinkingTableLessons:
+  RecursiveThinkingLessons:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
@@ -1283,11 +1283,11 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingTableLessons"
+      TableName: "RecursiveThinkingLessons"
 # ================================================================
 # DYNAMODB - /interviewQuestions/
 # ================================================================
-  RecursiveThinkingTableInterviewQuestions:
+  RecursiveThinkingInterviewQuestions:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
@@ -1299,11 +1299,11 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingTableInterviewQuestions"
+      TableName: "RecursiveThinkingInterviewQuestions"
 # ================================================================
 # DYNAMODB - /interviewQuestions/{id}/answers/
 # ================================================================
-  # RecursiveThinkingTableInterviewQuestionsAnswers:
+  # RecursiveThinkingInterviewQuestionsAnswers:
   #   Type: "AWS::DynamoDB::Table"
   #   Properties:
   #     AttributeDefinitions:
@@ -1315,7 +1315,8 @@ Resources:
   #     ProvisionedThroughput:
   #       ReadCapacityUnits: 1
   #       WriteCapacityUnits: 1
-  #     TableName: "RecursiveThinkingTableInterviewQuestionsAnswers"
+  #     TableName: "RecursiveThinkingInterviewQuestionsAnswers"
+
 
 # These are our outputs to show after running our python script.  We can paste the
 # cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
