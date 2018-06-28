@@ -84,8 +84,9 @@ for subdir in os.listdir(args.assets):
 # execute the cloudformation update
 call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3} --region={4}".format(args.stage, args.template, build_dir, s3bucket, args.region), shell=True)
 
-# call("aws dynamodb batch-write-item --request-items file://RecursiveThinkingProfileSkillsProfessional.json")
+# autoload skills from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsSoftware.json")
 
 # get stack info
 status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server", args.region), shell=True)

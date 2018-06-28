@@ -1,0 +1,37 @@
+{
+    "RecursiveThinkingProfileSkillsSoftware": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Sketch"},
+                    "skillSoft": {"S":"Sketch"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Balsamiq"},
+                    "skillSoft": {"S":"Balsamiq"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"OmniGraffle"},
+                    "skillSoft": {"S":"OmniGraffle"}
+                }
+            }
+        }
+        ,
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Axure"},
+                    "skillSoft": {"S":"Axure"}
+                }
+            }
+        }
+    ]
+}
