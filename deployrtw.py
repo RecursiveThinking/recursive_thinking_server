@@ -87,6 +87,7 @@ call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name
 # autoload skills from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json")
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsSoftware.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsLanguages.json")
 
 # get stack info
 status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server", args.region), shell=True)
