@@ -1364,6 +1364,14 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
       TableName: "RecursiveThinkingProfileSkillsLanguages"
+# ================================================================
+# S3 Bucket - To Store Resumes and Avatars per user
+# ================================================================
+  RecursiveThinkingUserCustomInfoStorage:
+    Type: "AWS::S3::Bucket"
+    Properties: 
+      AccessControl: PublicReadWrite
+      BucketName: recursivethinkingusercustominfostorage
 
 # These are our outputs to show after running our python script.  We can paste the
 # cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
