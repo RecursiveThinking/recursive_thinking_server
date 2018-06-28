@@ -1316,7 +1316,54 @@ Resources:
   #       ReadCapacityUnits: 1
   #       WriteCapacityUnits: 1
   #     TableName: "RecursiveThinkingInterviewQuestionsAnswers"
-
+# ================================================================
+# DYNAMODB - Master Table for UserProfile Skills - Professional
+# ================================================================
+  RecursiveThinkingProfileSkillsProfessional:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: "RecursiveThinkingProfileSkillsProfessional"
+# ================================================================
+# DYNAMODB - Master Table for UserProfile Skills - Software
+# ================================================================
+  RecursiveThinkingProfileSkillsSoftware:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: "RecursiveThinkingProfileSkillsSoftware"
+# ================================================================
+# DYNAMODB - Master Table for UserProfile Skills - Languages
+# ================================================================
+  RecursiveThinkingProfileSkillsLanguages:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: "RecursiveThinkingProfileSkillsLanguages"
 
 # These are our outputs to show after running our python script.  We can paste the
 # cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
