@@ -1372,7 +1372,19 @@ Resources:
     Properties: 
       AccessControl: PublicReadWrite
       BucketName: recursivethinkingusercustominfostorage
-
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins: 
+              - "*"
+            AllowedMethods: 
+              - HEAD
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            AllowedHeaders: 
+              - "*"
+      
 # These are our outputs to show after running our python script.  We can paste the
 # cognito clientId and cognitoUserPoolId in main.js of our webapp to connect to that
 # specific resource with AWS Amplify library (our auth).  We can use the API Gateway ID
