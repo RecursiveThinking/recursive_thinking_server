@@ -236,6 +236,33 @@ Resources:
 #       ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestionByIdAnswerById
 #       PathPart: "edit"
 #       RestApiId: !Ref RecursiveThinkingAPI
+# ================================================================
+# /skillsProfessional/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsProfessional:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
+      PathPart: "skillsProfessional"
+      RestApiId: !Ref RecursiveThinkingAPI
+# ================================================================
+# /skillsSoftware/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsSoftware:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
+      PathPart: "skillsSoftware"
+      RestApiId: !Ref RecursiveThinkingAPI
+# ================================================================
+# /skillsLanguages/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsLanguages:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
+      PathPart: "skillsLanguages"
+      RestApiId: !Ref RecursiveThinkingAPI
 
 # AWS::ApiGateway::Method = The HTTP Method that gets attached to a API Gateway Resource.
 # Could be GET, POST, PUT, DELETE ... etc.  We define that the method will be a proxy,
@@ -793,6 +820,70 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+# ================================================================
+# GET - /skillsProfessional/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsProfessionalGETMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "GET"
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsProfessional
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsProfessional.Arn}/invocations
+        
+  RecursiveThinkingAPIResourceSkillsProfessionalPostMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "POST"
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsProfessional
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkillsProfessional.Arn}/invocations
+        
+  RecursiveThinkingAPIResourceSkillsProfessionalMethodCORSGetAndPostOptions:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      RestApiId:
+        Ref: RecursiveThinkingAPI
+      ResourceId:
+        Ref: RecursiveThinkingAPIResourceSkillsProfessional
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
+
 
 # AWS::ApiGateway::Authorizer = This is our Authorizer on our API's.  In this case its
 # configured to look for a valid Cognito IdToken in the Authorization header of the request.
@@ -933,6 +1024,24 @@ Resources:
     Properties:
       Action: lambda:*
       FunctionName: !Ref RTWPostInterviewQuestionByIdEdit
+      Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - GET - /skillsProfessional/
+# ================================================================
+  RecursiveThinkingLambdaGetSkillsProfessionalPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWGetSkillsProfessional
+      Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - POST - /skillsProfessional/
+# ================================================================
+  RecursiveThinkingLambdaPostSkillsProfessionalPermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWPostSkillsProfessional
       Principal: apigateway.amazonaws.com
 
 
@@ -1245,6 +1354,46 @@ Resources:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestions
       Handler: index.PostInterviewQuestionByIdEdit
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+# ================================================================
+# LAMBDA - GET - /skillsProfessional/
+# ================================================================
+  RTWGetSkillsProfessional:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkillsProfessional
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetSkillsProfessional.zip"] ]
+      Description: "Get RTW Skills Professional"
+      FunctionName: "RTWGetSkillsProfessional"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkillsProfessional
+      Handler: index.GetSkillsProfessional
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+# ================================================================
+# LAMBDA - POST - /skillsProfessional/
+# ================================================================
+  RTWPostSkillsProfessional:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkillsProfessional
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsProfessional.zip"] ]
+      Description: "Post RTW Skills Professional"
+      FunctionName: "RTWPostSkillsProfessional"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkillsProfessional
+      Handler: index.PostSkillsProfessional
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
       Runtime: nodejs8.10
