@@ -257,11 +257,11 @@ Resources:
 # ================================================================
 # /skillsLanguages/
 # ================================================================
-  RecursiveThinkingAPIResourceSkillsLanguages:
+  RecursiveThinkingAPIResourceSkillsLanguage:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
-      PathPart: "skillsLanguages"
+      PathPart: "skillsLanguage"
       RestApiId: !Ref RecursiveThinkingAPI
 
 # AWS::ApiGateway::Method = The HTTP Method that gets attached to a API Gateway Resource.
@@ -950,6 +950,71 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+# ================================================================
+# GET - /skillsLanguage/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsLanguageGETMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "GET"
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsLanguage
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsLanguage.Arn}/invocations
+# ================================================================
+# POST - /skillsLanguage/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsLanguagePostMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "POST"
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsLanguage
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkillsLanguage.Arn}/invocations
+        
+  RecursiveThinkingAPIResourceSkillsLanguageMethodCORSGetAndPostOptions:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      RestApiId:
+        Ref: RecursiveThinkingAPI
+      ResourceId:
+        Ref: RecursiveThinkingAPIResourceSkillsLanguage
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
 
 # AWS::ApiGateway::Authorizer = This is our Authorizer on our API's.  In this case its
 # configured to look for a valid Cognito IdToken in the Authorization header of the request.
@@ -1126,6 +1191,24 @@ Resources:
     Properties:
       Action: lambda:*
       FunctionName: !Ref RTWPostSkillsSoftware
+      Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - GET - /skillsLanguage/
+# ================================================================
+  RecursiveThinkingLambdaGetSkillsLanguagePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWGetSkillsLanguage
+      Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - POST - /skillsLanguage/
+# ================================================================
+  RecursiveThinkingLambdaPostSkillsLanguagePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWPostSkillsLanguage
       Principal: apigateway.amazonaws.com
 
 
@@ -1522,6 +1605,46 @@ Resources:
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
       Runtime: nodejs8.10
       Timeout: 60
+# ================================================================
+# LAMBDA - GET - /skillsLanguage/
+# ================================================================
+  RTWGetSkillsLanguage:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkillsLanguage
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetSkillsLanguage.zip"] ]
+      Description: "Get RTW Skills Language"
+      FunctionName: "RTWGetSkillsLanguage"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkillsLanguage
+      Handler: index.GetSkillsLanguage
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+# ================================================================
+# LAMBDA - POST - /skillsLanguage/
+# ================================================================
+  RTWPostSkillsLanguage:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkillsLanguage
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsLanguage.zip"] ]
+      Description: "Post RTW Skills Language"
+      FunctionName: "RTWPostSkillsLanguage"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkillsLanguage
+      Handler: index.PostSkillsLanguage
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
 
 # AWS::DynamoDB::Table = DynamoDB tables.  They must specify at least one primary key.  The primary
 # key has to be unique across all records in the table, so we specify type HASH.
@@ -1624,7 +1747,7 @@ Resources:
 # ================================================================
 # DYNAMODB - Master Table for UserProfile Skills - Languages
 # ================================================================
-  RecursiveThinkingProfileSkillsLanguages:
+  RecursiveThinkingProfileSkillsLanguage:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
@@ -1636,7 +1759,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingProfileSkillsLanguages"
+      TableName: "RecursiveThinkingProfileSkillsLanguage"
 # ================================================================
 # S3 Bucket - To Store Resumes and Avatars per user
 # ================================================================
