@@ -1,0 +1,116 @@
+{
+    "RecursiveThinkingProfileSkillsLanguage": [
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"HTML"},
+                    "skillLang": {"S":"HTML"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"CSS"},
+                    "skillLang": {"S":"CSS"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"JavaScript"},
+                    "skillLang": {"S":"JavaScript"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"jQuery"},
+                    "skillLang": {"S":"jQuery"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Angular"},
+                    "skillLang": {"S":"Angular"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"React"},
+                    "skillLang": {"S":"React"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"CSharp"},
+                    "skillLang": {"S":"C#"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"dotNetCore"},
+                    "skillLang": {"S":".NETCore"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Nancy"},
+                    "skillLang": {"S":"Nancy"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Python"},
+                    "skillLang": {"S":"Python"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Django"},
+                    "skillLang": {"S":"Django"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Flask"},
+                    "skillLang": {"S":"Flask"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"Bootstrap"},
+                    "skillLang": {"S":"Bootstrap"}
+                }
+            }
+        },
+        {
+            "PutRequest": {
+                "Item": {
+                    "Id": {"S":"WebPack"},
+                    "skillLang": {"S":"WebPack"}
+                }
+            }
+        }
+    ]
+}
