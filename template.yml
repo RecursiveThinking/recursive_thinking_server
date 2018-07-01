@@ -837,7 +837,9 @@ Resources:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
         Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsProfessional.Arn}/invocations
-        
+# ================================================================
+# POST - /skillsProfessional/
+# ================================================================
   RecursiveThinkingAPIResourceSkillsProfessionalPostMethod:
     Type: "AWS::ApiGateway::Method"
     DependsOn: RecursiveThinkingAuthorizer
@@ -867,7 +869,7 @@ Resources:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -883,7 +885,71 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
-
+# ================================================================
+# GET - /skillsSoftware/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsSoftwareGETMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "GET"
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsSoftware
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsSoftware.Arn}/invocations
+# ================================================================
+# POST - /skillsSoftware/
+# ================================================================
+  RecursiveThinkingAPIResourceSkillsSoftwarePostMethod:
+    Type: "AWS::ApiGateway::Method"
+    DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      ApiKeyRequired: False
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "POST"
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsSoftware
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkillsSoftware.Arn}/invocations
+        
+  RecursiveThinkingAPIResourceSkillsSoftwareMethodCORSGetAndPostOptions:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: NONE
+      RestApiId:
+        Ref: RecursiveThinkingAPI
+      ResourceId:
+        Ref: RecursiveThinkingAPIResourceSkillsSoftware
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Origin: "'*'"
+          ResponseTemplates:
+            application/json: ''
+        PassthroughBehavior: WHEN_NO_MATCH
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+      - StatusCode: 200
+        ResponseModels:
+          application/json: 'Empty'
+        ResponseParameters:
+          method.response.header.Access-Control-Allow-Headers: true
+          method.response.header.Access-Control-Allow-Methods: true
+          method.response.header.Access-Control-Allow-Origin: true
 
 # AWS::ApiGateway::Authorizer = This is our Authorizer on our API's.  In this case its
 # configured to look for a valid Cognito IdToken in the Authorization header of the request.
@@ -1042,6 +1108,24 @@ Resources:
     Properties:
       Action: lambda:*
       FunctionName: !Ref RTWPostSkillsProfessional
+      Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - GET - /skillsSoftware/
+# ================================================================
+  RecursiveThinkingLambdaGetSkillsSoftwarePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWGetSkillsSoftware
+      Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - POST - /skillsSoftware/
+# ================================================================
+  RecursiveThinkingLambdaPostSkillsSoftwarePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:*
+      FunctionName: !Ref RTWPostSkillsSoftware
       Principal: apigateway.amazonaws.com
 
 
@@ -1394,6 +1478,46 @@ Resources:
         Variables:
           TABLE: !Ref RecursiveThinkingProfileSkillsProfessional
       Handler: index.PostSkillsProfessional
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+# ================================================================
+# LAMBDA - GET - /skillsSoftware/
+# ================================================================
+  RTWGetSkillsSoftware:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkillsSoftware
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetSkillsSoftware.zip"] ]
+      Description: "Get RTW Skills Software"
+      FunctionName: "RTWGetSkillsSoftware"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkillsSoftware
+      Handler: index.GetSkillsSoftware
+      MemorySize: 128
+      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Runtime: nodejs8.10
+      Timeout: 60
+# ================================================================
+# LAMBDA - POST - /skillsSoftware/
+# ================================================================
+  RTWPostSkillsSoftware:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkillsSoftware
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsSoftware.zip"] ]
+      Description: "Post RTW Skills Software"
+      FunctionName: "RTWPostSkillsSoftware"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkillsSoftware
+      Handler: index.PostSkillsSoftware
       MemorySize: 128
       Role: !GetAtt RecursiveThinkingLambdaRole.Arn
       Runtime: nodejs8.10
