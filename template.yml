@@ -90,6 +90,12 @@ Resources:
       GenerateSecret: False
       RefreshTokenValidity: 30
       UserPoolId: !Ref RecursiveThinkingUserPool
+      
+  RecursiveThinkingIdentityPoolS3Test:
+    Type: "AWS::Cognito::IdentityPool"
+    Properties:
+      IdentityPoolName: "RecursiveThinkingIdentityPoolS3Test"
+      AllowUnauthenticatedIdentities: true
 
 
 # AWS::ApiGateway::RestApi = heres our base api.  This needs resources and methods to work.
