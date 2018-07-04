@@ -102,6 +102,83 @@ Resources:
         - ClientId: !Ref RecursiveThinkingUserPoolClient
           ProviderName: !GetAtt RecursiveThinkingUserPool.ProviderName
 
+  # Rosetta Stone for Identity Pool
+  # Script                      |  UI
+  # ==============================================================
+  # CognitoIdentityProviders    |  Authentication Providers
+
+  # Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
+  CognitoUnAuthorizedRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal: 
+              Federated: "cognito-identity.amazonaws.com"
+            Action: 
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals: 
+                "cognito-identity.amazonaws.com:aud": !Ref RecursiveThinkingIdentityPoolS3Test
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": unauthenticated
+      Policies:
+        - PolicyName: "CognitoUnauthorizedPolicy"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: "Allow"
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                  - "s3:*"
+                Resource: 
+                  - "*"
+                  - "arn:aws:s3:::recursivethinkingusercustominfostorage/*"
+
+  # Rosetta Stone for Identity Pool - IAM Role - Unauth/Auth
+  # Script                      |  UI
+  # ==============================================================
+  # AssumeRolePolicyDocument    |  Trust Relationships
+  # Policies:                   |  Permissions:
+  CognitoAuthorizedRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Federated: "cognito-identity.amazonaws.com"
+            Action:
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals:
+                "cognito-identity.amazonaws.com:aud": !Ref RecursiveThinkingIdentityPoolS3Test
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": authenticated
+      Policies:
+        - PolicyName: "CognitoAuthorizedPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                  - "cognito-identity:*"
+                Resource: "*"
+              
+  # Assigns the roles to the Identity Pool
+  RecursiveThinkingIdentityPoolRoleMapping:
+    Type: "AWS::Cognito::IdentityPoolRoleAttachment"
+    Properties:
+      IdentityPoolId: !Ref RecursiveThinkingIdentityPoolS3Test
+      Roles:
+        authenticated: !GetAtt CognitoAuthorizedRole.Arn
+        unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
   # My Best Guess Test
   # RecursiveThinkingIdentityPoolUnauthorizedIAMRole:
   #   Type: "AWS::IAM::Role"
