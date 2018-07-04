@@ -1925,3 +1925,15 @@ Outputs:
     Value: !Ref RecursiveThinkingUserPoolClient
     Export:
       Name: CognitoUserPoolClientIdentifier
+      
+  CognitoIdentityPoolId:
+    Description: IdentityPoolId - Export for s3 Bucket
+    Value: !Ref RecursiveThinkingIdentityPoolS3Test
+    Export:
+      Name: "RecursiveThinkingIdentityPoolS3Test::Id"
+
+  s3BucketName:
+    Description: s3BucketName - Name of s3 Bucket
+    Value: !Ref RecursiveThinkingUserCustomInfoStorage
+    Export:
+      Name: "s3BucketName"
