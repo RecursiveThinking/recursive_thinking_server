@@ -90,13 +90,45 @@ Resources:
       GenerateSecret: False
       RefreshTokenValidity: 30
       UserPoolId: !Ref RecursiveThinkingUserPool
-      
+
+  # Creates the Federated Identity Pool - 
+  # This is used specifically to allow users to upload to s3
   RecursiveThinkingIdentityPoolS3Test:
     Type: "AWS::Cognito::IdentityPool"
     Properties:
       IdentityPoolName: "RecursiveThinkingIdentityPoolS3Test"
       AllowUnauthenticatedIdentities: true
+      CognitoIdentityProviders:
+        - ClientId: !Ref RecursiveThinkingUserPoolClient
+          ProviderName: !GetAtt RecursiveThinkingUserPool.ProviderName
 
+  # My Best Guess Test
+  # RecursiveThinkingIdentityPoolUnauthorizedIAMRole:
+  #   Type: "AWS::IAM::Role"
+  #   Properties: 
+  #     AssumeRolePolicyDocument:
+  #       Version: "2012-10-17"
+  #       Statement:
+  #         - 
+  #           Effect: "Allow"
+  #           Action:
+  #           - "mobileanalytics:PutEvents"
+  #             # "cognito-sync:*"
+  #             # "s3:*"
+  #           Resource:
+  #           - "*"
+              # "arn:aws:s3:::recursivethinkingusercustominfostorage/*"
+      # RoleName: "ACognito_RecursiveThinkingIdentityPoolUnauthorizedIAMRole_Test" #         PolicyDocument: 
+  #           Version: "2012-10-17"
+  #           Statement: 
+  #             - 
+  #               Effect: "Allow"
+  #               Action: "*"
+  #               Resource: "*"
+  # RootInstanceProfile: 
+  #   Type: "AWS::IAM::InstanceProfile"
+  #   Properties: 
+  #     Path: "/"
 
 # AWS::ApiGateway::RestApi = heres our base api.  This needs resources and methods to work.
   RecursiveThinkingAPI:
@@ -1800,20 +1832,19 @@ Resources:
 Outputs:
 
   CognitoUserPoolId:
-    Description: The cognito user pool id
+    Description: userPoolId - The cognito user pool id
     Value: !Ref RecursiveThinkingUserPool
     Export:
       Name: CognitoUserPoolIdentifier
 
   APIGatewayId:
-    Description: The base id of the api, used for constructing the api url to make requests
+    Description: apiUrl - The base id of the api, used for constructing the api url to make requests
     Value: !Ref RecursiveThinkingAPI
     Export:
       Name: APIGatewayIdentifier
 
   CognitoClientId:
-    Description: The id of the client (app) connected to cognito
+    Description: userPoolWebClientId - The id of the client (app) connected to cognito
     Value: !Ref RecursiveThinkingUserPoolClient
     Export:
       Name: CognitoUserPoolClientIdentifier
-
