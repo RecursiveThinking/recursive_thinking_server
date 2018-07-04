@@ -92,14 +92,16 @@ call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThin
 # get stack info
 status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server", args.region), shell=True)
 stack_response = json.loads(status)
+# print("stack response")
+# print(stack_response)
 
-check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region), shell=True)
+check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region), shell=True)
 
 credentials = {
     "region": args.region,
-    "userPoolId": stack_response["Stacks"][0]["Outputs"][0]["OutputValue"],
-    "userPoolWebClientId": stack_response["Stacks"][0]["Outputs"][1]["OutputValue"],
-    "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][2]["OutputValue"], args.region)
+    "userPoolId": stack_response["Stacks"][0]["Outputs"][1]["OutputValue"],
+    "userPoolWebClientId": stack_response["Stacks"][0]["Outputs"][2]["OutputValue"],
+    "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region)
 }
 
 # print stack info in json format (so it can easily be copy-pasted)
