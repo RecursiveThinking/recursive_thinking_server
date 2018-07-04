@@ -106,7 +106,7 @@ credentials = {
 
 s3UploadInfo = {
     "region": args.region,
-    "s3BucketName": stack_response["Stacks"][0]["Outputs"][]["OutputValue"],
+    "s3BucketName": stack_response["Stacks"][0]["Outputs"][3]["OutputValue"],
     "IdentityPoolId": stack_response["Stacks"][0]["Outputs"][0]["OutputValue"]
 }
 
