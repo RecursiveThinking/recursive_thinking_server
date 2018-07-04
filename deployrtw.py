@@ -104,11 +104,21 @@ credentials = {
     "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region)
 }
 
+s3UploadInfo = {
+    "region": args.region,
+    "s3BucketName": stack_response["Stacks"][0]["Outputs"][]["OutputValue"],
+    "IdentityPoolId": stack_response["Stacks"][0]["Outputs"][0]["OutputValue"]
+}
+
 # print stack info in json format (so it can easily be copy-pasted)
 credentialsString = json.dumps(credentials, indent=2, sort_keys=True)
+s3UploadInfoString = json.dumps(s3UploadInfo, indent=2, sort_keys=True)
 print('')
 print('Secrets: ')
 print(credentialsString)
+print('')
+print('s3UploadInfo: ')
+print(s3UploadInfoString)
 print('')
 
 # now try to put that into a file
@@ -136,6 +146,10 @@ if os.path.isdir(maybeWebsitePath): # if maybeWebsitePath is a real folder...
     cognitoSecrets = safeOpen(cognitoSecretsPath,"w")
     cognitoSecrets.write(credentialsString)
     cognitoSecrets.close()
+    s3UploadSecretsPath = abspath(join(maybeWebsitePath, 'secrets', 's3UploadSecrets.json'))
+    s3UploadSecrets = safeOpen(s3UploadSecretsPath,"w")
+    s3UploadSecrets.write(s3UploadInfoString)
+    s3UploadSecrets.close()
 
     print('Wrote secrets to {0}'.format(cognitoSecretsPath))
     print("If this isn't what you expected, please use the --website-directory argument.")
