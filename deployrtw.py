@@ -86,6 +86,8 @@ call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name
 
 # autoload lessons from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingLessons.json")
+# autoload lessons from json to Dynamo
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingInterviewQuestions.json")
 # autoload skills from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json")
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsSoftware.json")
