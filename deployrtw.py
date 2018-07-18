@@ -84,6 +84,8 @@ for subdir in os.listdir(args.assets):
 # execute the cloudformation update
 call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3} --region={4}".format(args.stage, args.template, build_dir, s3bucket, args.region), shell=True)
 
+# autoload homeScreen quotes from json to Dynamo
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingHomeScreenQuotes.json")
 # autoload lessons from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingLessons.json")
 # autoload lessons from json to Dynamo
