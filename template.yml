@@ -1876,6 +1876,22 @@ Resources:
         WriteCapacityUnits: 1
       TableName: "RecursiveThinkingProfileSkillsLanguage"
 # ================================================================
+# DYNAMODB - Master Table for HomeScreen Quotes
+# ================================================================
+  RecursiveThinkingHomeScreenQuotes:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: "RecursiveThinkingHomeScreenQuotes"
+# ================================================================
 # S3 Bucket - To Store Resumes and Avatars per user
 # ================================================================
   RecursiveThinkingUserCustomInfoStorage:
