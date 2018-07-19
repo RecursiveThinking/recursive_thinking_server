@@ -1898,7 +1898,9 @@ Resources:
     Type: "AWS::S3::Bucket"
     Properties: 
       AccessControl: PublicReadWrite
-      BucketName: recursivethinkingusercustominfostorage-avscode
+      BucketName: recursivethinkingusercustominfostorage
+      # \/-- if you are deploying this, /\-- comment out the above, add your name past the dash, below (and make it active...)
+      # BucketName: recursivethinkingusercustominfostorage-avscode
       CorsConfiguration:
         CorsRules:
           - AllowedOrigins: 
