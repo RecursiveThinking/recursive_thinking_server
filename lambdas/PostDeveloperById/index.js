@@ -4,7 +4,7 @@ const dynamodb = new aws.DynamoDB.DocumentClient();
 exports.PostDeveloperById = (event, context, callback) => {
 
     console.log(JSON.stringify(event));
-
+    console.log(event.requestContext.authorizer.claims);
     const pathParam = event.pathParameters.id;
     const userId = event.requestContext.authorizer.claims.sub;
 
@@ -24,10 +24,30 @@ exports.PostDeveloperById = (event, context, callback) => {
 
     const params = {
         Item: {
+            userId: event.requestContext.authorizer.claims.sub,
             username: event.requestContext.authorizer.claims["cognito:username"],
-            email: event.requestContext.authorizer.claims.email,
             name: event.requestContext.authorizer.claims.name,
-            userId: event.requestContext.authorizer.claims.sub
+            email: event.requestContext.authorizer.claims.email,
+            picture: null,
+            created: new Date().toString(),
+            updated: null,
+            city: null,
+            state: null,
+            title: null,
+            employer: null,
+            github: null,
+            codepen: null,
+            linkedin: null,
+            website: null,
+            resume: null,
+            bio: null,
+            experience: null,
+            timeWithRT: null,
+            rank: null,
+            skillsProfessional: null,
+            skillsSoftware: [],
+            skillsLanguages: [],
+            lessonsAttending: []
         },
         TableName: process.env.TABLE
     };
