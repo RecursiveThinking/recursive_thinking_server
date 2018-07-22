@@ -90,15 +90,15 @@ for subdir in os.listdir(args.assets):
 call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetsS3Bucket={3} UserAssetsS3Bucket={5} --region={4}".format(args.stage, args.template, build_dir, assetsS3bucket, args.region, userAssetsS3Bucket), shell=True)
 
 # autoload homeScreen quotes from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingHomeScreenQuotes.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingHomeScreenQuotes.json --region={0}".format(args.region), shell=True)
 # autoload lessons from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingLessons.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingLessons.json --region={0}".format(args.region), shell=True)
 # autoload lessons from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingInterviewQuestions.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingInterviewQuestions.json --region={0}".format(args.region), shell=True)
 # autoload skills from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json")
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsSoftware.json")
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsLanguage.json")
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json --region={0}".format(args.region), shell=True)
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsSoftware.json --region={0}".format(args.region), shell=True)
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsLanguage.json --region={0}".format(args.region), shell=True)
 
 # get stack info
 status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server", args.region), shell=True)
