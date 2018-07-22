@@ -39,17 +39,22 @@ parser.add_argument("--website-directory", help="The directory of the website pa
 parser.add_argument("--region", help="The AWS region to create your assets in.", default="us-west-2")
 args = parser.parse_args()
 
-s3bucket = args.s3bucket
+assetsS3bucket = args.s3bucket
+userAssetsS3Bucket = args.s3bucket
 
 # create a (hopefully) unique s3bucket if none was defined
-if s3bucket == None:
+if assetsS3bucket == None:
     if sys.version_info < (3, 0):
-        s3bucket = 'recursive-thinking-assets-' + args.region + '-' + check_output("git config --global user.email", shell=True).replace('@','-').replace('.', '-').rstrip()
+        stripedUserName = check_output("git config --global user.email", shell=True).replace('@','-').replace('.', '-').rstrip()
+        assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
+        userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
     else:
-        s3bucket = 'recursive-thinking-assets-' + args.region + '-' + str(check_output("git config --global user.email", shell=True), 'utf-8').replace('@','-').replace('.', '-').rstrip()
+        stripedUserName = str(check_output("git config --global user.email", shell=True), 'utf-8').replace('@','-').replace('.', '-').rstrip()
+        assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
+        userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
 
 # make the s3 bucket (seems to fail silently if the bucket is already made, so yay!)
-call('aws s3 mb "s3://{0}" --region={1}'.format(s3bucket, args.region), shell=True)
+call('aws s3 mb "s3://{0}" --region={1}'.format(assetsS3bucket, args.region), shell=True)
 
 # upload lambda assets
 # NOTE: we're using posixpath here for cross-compatibility b/c python doesn't seem to care
@@ -74,7 +79,7 @@ for subdir in os.listdir(args.assets):
     if os.path.isdir(lambda_path):
         shutil.make_archive(subdir, 'zip', lambda_path)
         zip_file_path = "./{0}{1}".format(subdir, '.zip')
-        call("aws s3 cp {0} s3://{1}/{2}/".format(zip_file_path, s3bucket, build_dir), shell=True)
+        call("aws s3 cp {0} s3://{1}/{2}/".format(zip_file_path, assetsS3bucket, build_dir), shell=True)
         
     # ------------------------------- END FOR PC -------------------------------
             
@@ -82,7 +87,7 @@ for subdir in os.listdir(args.assets):
         call("rm -f {0}".format(zip_file_path), shell=True)
 
 # execute the cloudformation update
-call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetS3Bucket={3} --region={4}".format(args.stage, args.template, build_dir, s3bucket, args.region), shell=True)
+call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetsS3Bucket={3} UserAssetsS3Bucket={5} --region={4}".format(args.stage, args.template, build_dir, assetsS3bucket, args.region, userAssetsS3Bucket), shell=True)
 
 # autoload homeScreen quotes from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingHomeScreenQuotes.json")
