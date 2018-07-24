@@ -1869,6 +1869,22 @@ Resources:
         WriteCapacityUnits: 1
       TableName: "RecursiveThinkingHomeScreenQuotes"
 # ================================================================
+# DYNAMODB - Master Table for Ranks
+# ================================================================
+  RecursiveThinkingRanks:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: "RecursiveThinkingRanks"
+# ================================================================
 # S3 Bucket - To Store Resumes and Avatars per user
 # ================================================================
   RecursiveThinkingUserAssetsS3Bucket:
