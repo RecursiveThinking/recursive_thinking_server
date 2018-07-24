@@ -1,0 +1,183 @@
+{
+    "RecursiveThinkingRanks": [{
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e840-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Youngling"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e841-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Adv Youngling"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e842-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Padawan"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e843-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Adv Padawan"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e844-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Jedi Initiate"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e845-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Jedi"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e846-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Jedi Knight"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e847-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Jedi Master"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }, {
+        "PutRequest": {
+            "Item": {
+                "Id": {
+                    "S": "f227e848-8ed5-11e8-a170-15022f2a2d75"
+                },
+                "rank": {
+                    "S": "Jedi Grand Master"
+                },
+                "createdAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "updatedAt": {
+                    "S": "Mon Jul 23 2018 17:14:20 GMT-0700 (Pacific Daylight Time)"
+                },
+                "_usersWithRank": {
+                    "L": []
+                }
+            }
+        }
+    }]
+}
