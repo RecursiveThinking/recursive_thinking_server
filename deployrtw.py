@@ -129,10 +129,10 @@ s3UploadInfo = {
 credentialsString = json.dumps(credentials, indent=2, sort_keys=True)
 s3UploadInfoString = json.dumps(s3UploadInfo, indent=2, sort_keys=True)
 print('')
-print('Secrets: ')
+print('cognitoSecrets.json: ')
 print(credentialsString)
 print('')
-print('s3UploadInfo: ')
+print('s3UploadSecrets.json: ')
 print(s3UploadInfoString)
 print('')
 
@@ -169,4 +169,4 @@ if os.path.isdir(maybeWebsitePath): # if maybeWebsitePath is a real folder...
     print('Wrote secrets to {0}'.format(cognitoSecretsPath))
     print("If this isn't what you expected, please use the --website-directory argument.")
 else:
-    print("Failed to write secrets. Please copy the secrets output above to recursive_thinking_website/secrets/cognitoSecrets.json")
+    print("Failed to write secrets. Please write the secrets output above to recursive_thinking_website/secrets/cognitoSecrets.json and recursive_thinking_website/secrets/s3UploadSecrets.json")
