@@ -20,7 +20,9 @@ Resources:
 # down as much as we want, or give our resources as much privileges as well.
 # mostly security stuff but also super annoying because stuff wont work alot of times
 # its the IAM priviledges to blame.
-  RecursiveThinkingLambdaRole:
+  # This is the old Role name...
+  # RecursiveThinkingLambdaRole:
+  RTWIAMRoleLambda:
     Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
@@ -43,12 +45,164 @@ Resources:
                 Effect: "Allow"
                 Action: "*"
                 Resource: "*"
-      RoleName: "RecursiveThinkingLambdaRole"
+      RoleName: "RTW_IAMRoleLambda"
+      
+  # These define the IAM roles, applied to lambdas, which restrict what certain API methods can do
+  RTWIAMRoleLambdaForDynamoScanAndGetItem:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "DynamoDBPolicy_ScanAndGetItem"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: 
+                  - dynamodb:GetItem
+                  - dynamodb:Scan
+                Resource: 
+                  - !GetAtt RecursiveThinkingUsers.Arn
+                  - !GetAtt RecursiveThinkingLessons.Arn
+                  - !GetAtt RecursiveThinkingInterviewQuestions.Arn
+                  - !GetAtt RecursiveThinkingInterviewQuestionsAnswers.Arn
+                  - !GetAtt RecursiveThinkingProfileSkills.Arn
+                  - !GetAtt RecursiveThinkingHomeScreenQuotes.Arn
+                  - !GetAtt RecursiveThinkingRanks.Arn
+      RoleName: "RTW_IAMRoleLambda_DynamoScanAndGetItem"
+      
+  RTWIAMRoleLambdaForDynamoPostItem:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "DynamoDBPolicy_PostItem"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: 
+                  - dynamodb:PutItem
+                Resource: 
+                  - !GetAtt RecursiveThinkingUsers.Arn
+                  - !GetAtt RecursiveThinkingLessons.Arn
+                  - !GetAtt RecursiveThinkingInterviewQuestions.Arn
+                  - !GetAtt RecursiveThinkingInterviewQuestionsAnswers.Arn
+                  - !GetAtt RecursiveThinkingProfileSkills.Arn
+                  - !GetAtt RecursiveThinkingHomeScreenQuotes.Arn
+                  - !GetAtt RecursiveThinkingRanks.Arn
+      RoleName: "RTW_IAMRoleLambda_DynamoPostItem"
+      
+  RTWIAMRoleLambdaForDynamoDeleteItem:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Policies:
+        -
+          PolicyName: "DynamoDBPolicy_DeleteItem"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: 
+                  - dynamodb:DeleteItem
+                Resource: 
+                  - !GetAtt RecursiveThinkingUsers.Arn
+                  - !GetAtt RecursiveThinkingLessons.Arn
+                  - !GetAtt RecursiveThinkingInterviewQuestions.Arn
+                  - !GetAtt RecursiveThinkingInterviewQuestionsAnswers.Arn
+                  - !GetAtt RecursiveThinkingProfileSkills.Arn
+                  - !GetAtt RecursiveThinkingHomeScreenQuotes.Arn
+                  - !GetAtt RecursiveThinkingRanks.Arn
+      RoleName: "RTW_IAMRoleLambda_DynamoDeleteItem"
+
+
+# DynamoDBManagedPolicyDeleteItem:
+#   Type: AWS::IAM::ManagedPolicy
+#   Properties:
+#     Description: "Policy for deleting entries in a database"
+#     # Path: ?
+#     PolicyDocument:
+#       Version: "2012-10-17"
+#       Statement:
+#         -
+#           Effect: "Allow"
+#           Action: "logs:CreateLogGroup"
+#           Resource:
+#             Fn::Join:
+#             - ""
+#             - 
+#               - "arn:aws:logs:"
+#               - 
+#                 Ref: "AWS::Region"
+#               - ":"
+#               -
+#                 Ref: "AWS::AccountId"
+#               - ":*"
+#         -
+#           Effect: "Allow"
+#           Action: 
+#           - 
+#             "logs:CreateLogStream"
+#             "logs:CreateLogGroup"
+#           Resource:
+#             Fn::Join:
+#             - ""
+#             - 
+#               - "arn:aws:logs:"
+#               - 
+#                 Ref: "AWS::Region"
+#               - ":"
+#               -
+#                 Ref: "AWS::AccountId"
+#               - ":log-group:/aws/lambda/*"
+
+
+# AWSLambdaBasicExecutionManagedPolicyLogLambdaInCloudWatch:
+#   Type: AWS::IAM::ManagedPolicy
+#   Properties:
+#     Description: "Policy for logging Lambda results in CloudWatch"
+#     # Path: ?
+#     PolicyDocument:
+#       Version:"2012-10-17"
 
 # AWS::Cognito::UserPool = Heres our Cognito User Pool!  We can set all the properties
 # to configure how we store/verify users.  This will essentially be our AUTH.
 # it doesn't need to store user data just their email/password so we can Auth them
 # to use our service.
+
   RecursiveThinkingUserPool:
     Type: "AWS::Cognito::UserPool"
     Properties:
@@ -73,10 +227,6 @@ Resources:
         AttributeDataType: String
         Mutable: false
         Required: true
-      # - Name: preferred_username
-      #   AttributeDataType: String
-      #   Mutable: false
-      #   Required: true
         
           
 # Name === UserName
@@ -86,6 +236,7 @@ Resources:
 # AWS::Cognito::UserPoolClient = This is essentially our Web App which is a client
 # of our user pool.  We can define the refresh token validity and thats about it.
 # We need the ID of this client to connect to our user pool (see outputs section at bottom).
+  
   RecursiveThinkingUserPoolClient:
     Type: "AWS::Cognito::UserPoolClient"
     Properties:
@@ -96,6 +247,7 @@ Resources:
 
   # Creates the Federated Identity Pool - 
   # This is used specifically to allow users to upload to s3
+  
   RecursiveThinkingIdentityPoolS3Test:
     Type: "AWS::Cognito::IdentityPool"
     Properties:
@@ -111,6 +263,7 @@ Resources:
   # CognitoIdentityProviders    |  Authentication Providers
 
   # Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
+  
   CognitoUnAuthorizedRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -147,6 +300,7 @@ Resources:
   # ==============================================================
   # AssumeRolePolicyDocument    |  Trust Relationships
   # Policies:                   |  Permissions:
+  
   CognitoAuthorizedRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -176,6 +330,7 @@ Resources:
                 Resource: "*"
               
   # Assigns the roles to the Identity Pool
+  
   RecursiveThinkingIdentityPoolRoleMapping:
     Type: "AWS::Cognito::IdentityPoolRoleAttachment"
     Properties:
@@ -183,6 +338,8 @@ Resources:
       Roles:
         authenticated: !GetAtt CognitoAuthorizedRole.Arn
         unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
+
+########
 
 # AWS::ApiGateway::RestApi = heres our base api.  This needs resources and methods to work.
   RecursiveThinkingAPI:
@@ -221,32 +378,24 @@ Resources:
 # Usually the Gateway Resource is Named Incorrectly
 
 # ================================================================
-# /developers/
+# /users/
 # ================================================================
-  RecursiveThinkingAPIResourceDevelopers:
+  RecursiveThinkingAPIResourceUsers:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
-      PathPart: "developers"
+      PathPart: "users"
       RestApiId: !Ref RecursiveThinkingAPI
 # ================================================================
-# /developers/{id}
+# /users/{id}
 # ================================================================
-  RecursiveThinkingAPIResourceDeveloperById:
+  RecursiveThinkingAPIResourceUserById:
     Type: "AWS::ApiGateway::Resource"
     Properties:
-      ParentId: !Ref RecursiveThinkingAPIResourceDevelopers
+      ParentId: !Ref RecursiveThinkingAPIResourceUsers
       PathPart: "{id}"
       RestApiId: !Ref RecursiveThinkingAPI
-# ================================================================
-# /developers/{id}/edit
-# ================================================================
-  RecursiveThinkingAPIResourceDeveloperByIdEdit:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !Ref RecursiveThinkingAPIResourceDeveloperById
-      PathPart: "edit"
-      RestApiId: !Ref RecursiveThinkingAPI
+
 # ================================================================
 # /lessons/
 # ================================================================
@@ -256,6 +405,7 @@ Resources:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
       PathPart: "lessons"
       RestApiId: !Ref RecursiveThinkingAPI
+
 # ================================================================
 # /lessons/{id}
 # ================================================================
@@ -265,24 +415,17 @@ Resources:
       ParentId: !Ref RecursiveThinkingAPIResourceLessons
       PathPart: "{id}"
       RestApiId: !Ref RecursiveThinkingAPI
+
 # ================================================================
-# /lessons/{id}/edit
-# ================================================================
-  RecursiveThinkingAPIResourceLessonByIdEdit:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !Ref RecursiveThinkingAPIResourceLessonById
-      PathPart: "edit"
-      RestApiId: !Ref RecursiveThinkingAPI
-# ================================================================
-# /interviewQuestions/
+# /interviewquestions/
 # ================================================================
   RecursiveThinkingAPIResourceInterviewQuestions:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
-      PathPart: "interviewQuestions"
+      PathPart: "interviewquestions"
       RestApiId: !Ref RecursiveThinkingAPI
+      
 # ================================================================
 # /interviewQuestions/{id}/
 # ================================================================
@@ -292,68 +435,54 @@ Resources:
       ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestions
       PathPart: "{id}"
       RestApiId: !Ref RecursiveThinkingAPI
+      
 # ================================================================
-# /interviewQuestions/{id}/edit
+# /interviewquestionsanswers/
 # ================================================================
-  RecursiveThinkingAPIResourceInterviewQuestionByIdEdit:
-    Type: "AWS::ApiGateway::Resource"
-    Properties:
-      ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestionById
-      PathPart: "edit"
-      RestApiId: !Ref RecursiveThinkingAPI
-# ================================================================
-# /interviewQuestions/{id}/answers/
-# ================================================================
-  # RecursiveThinkingAPIResourceInterviewQuestionByIdAnswers:
-  #   Type: "AWS::ApiGateway::Resource"
-  #   Properties:
-  #     ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestionById
-  #     PathPart: "answers"
-  #     RestApiId: !Ref RecursiveThinkingAPI
-# ================================================================
-# /interviewQuestions/{id}/answers/{id}
-# ================================================================
-  # RecursiveThinkingAPIResourceInterviewQuestionByIdAnswerById:
-  #   Type: "AWS::ApiGateway::Resource"
-  #   Properties:
-  #     ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestionByIdAnswers
-  #     PathPart: "{id}"
-  #     RestApiId: !Ref RecursiveThinkingAPI
-# ================================================================
-# /interviewQuestions/{id}/answers/{id}/edit/
-# ================================================================
-#   RecursiveThinkingAPIResourceInterviewQuestionByIdAnswerByIdEdit:
-#     Type: "AWS::ApiGateway::Resource"
-#     Properties:
-#       ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestionByIdAnswerById
-#       PathPart: "edit"
-#       RestApiId: !Ref RecursiveThinkingAPI
-# ================================================================
-# /skillsProfessional/
-# ================================================================
-  RecursiveThinkingAPIResourceSkillsProfessional:
+  RecursiveThinkingAPIResourceInterviewQuestionsAnswers:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
-      PathPart: "skillsProfessional"
+      PathPart: "interviewquestionsanswers"
       RestApiId: !Ref RecursiveThinkingAPI
 # ================================================================
-# /skillsSoftware/
+# /interviewquestionsanswers/{id}
 # ================================================================
-  RecursiveThinkingAPIResourceSkillsSoftware:
+  RecursiveThinkingAPIResourceInterviewQuestionsAnswerById:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !Ref RecursiveThinkingAPIResourceInterviewQuestionsAnswers
+      PathPart: "{id}"
+      RestApiId: !Ref RecursiveThinkingAPI
+
+# ================================================================
+# /skills/ - Profile Skills
+# ================================================================
+  RecursiveThinkingAPIResourceSkills:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
-      PathPart: "skillsSoftware"
+      PathPart: "skills"
       RestApiId: !Ref RecursiveThinkingAPI
+      
 # ================================================================
-# /skillsLanguages/
+# /skills/{id} - Profile Skills
 # ================================================================
-  RecursiveThinkingAPIResourceSkillsLanguage:
+  RecursiveThinkingAPIResourceSkillById:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      ParentId: !Ref RecursiveThinkingAPIResourceSkills
+      PathPart: "{id}"
+      RestApiId: !Ref RecursiveThinkingAPI
+      
+# ================================================================
+# /homescreenquotes/ - HomeScreen Quotes
+# ================================================================
+  RecursiveThinkingAPIResourceHomeScreenQuotes:
     Type: "AWS::ApiGateway::Resource"
     Properties:
       ParentId: !GetAtt RecursiveThinkingAPI.RootResourceId
-      PathPart: "skillsLanguage"
+      PathPart: "homescreenquotes"
       RestApiId: !Ref RecursiveThinkingAPI
 
 # AWS::ApiGateway::Method = The HTTP Method that gets attached to a API Gateway Resource.
@@ -378,97 +507,51 @@ Resources:
 # ================================================================
 
 # ================================================================
-# GET - /developers/
+# GET (ALL) - /users/
 # ================================================================
-  RecursiveThinkingAPIResourceDevelopersGETMethod:
+  RecursiveThinkingAPIResourceUsersGet:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceDevelopers
+      ResourceId: !Ref RecursiveThinkingAPIResourceUsers
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDevelopers.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceDevelopersGETMethodCORSOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWUsersGetAll.Arn}/invocations
+
+# ================================================================
+# POST - /users/
+# ================================================================
+  RecursiveThinkingAPIResourceUsersPost:
     Type: "AWS::ApiGateway::Method"
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      AuthorizationType: NONE
-      RestApiId:
-        Ref: RecursiveThinkingAPI
-      ResourceId:
-        Ref: RecursiveThinkingAPIResourceDevelopers
-      HttpMethod: OPTIONS
-      Integration:
-        IntegrationResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
-            method.response.header.Access-Control-Allow-Origin: "'*'"
-          ResponseTemplates:
-            application/json: ''
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        Type: MOCK
-      MethodResponses:
-      - StatusCode: 200
-        ResponseModels:
-          application/json: 'Empty'
-        ResponseParameters:
-          method.response.header.Access-Control-Allow-Headers: true
-          method.response.header.Access-Control-Allow-Methods: true
-          method.response.header.Access-Control-Allow-Origin: true
-        
-# ================================================================
-# GET - /developers/{id}
-# ================================================================
-  RecursiveThinkingAPIResourceDevelopersGETDeveloperByIdMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceDeveloperById
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDeveloperById.Arn}/invocations
-# ================================================================
-# POST - /developers/{id}
-# ================================================================
-  RecursiveThinkingAPIResourceDevelopersPOSTDeveloperByIdMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"      
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceDeveloperById
+      ResourceId: !Ref RecursiveThinkingAPIResourceUsers
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostDeveloperById.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWUsersPost.Arn}/invocations
   
-  RecursiveThinkingAPIResourceDevelopersDeveloperByIdMethodCORSGetAndPostOptions:
+  RecursiveThinkingAPIResourceUsersCORSGetAndPostOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
       RestApiId:
         Ref: RecursiveThinkingAPI
       ResourceId:
-        Ref: RecursiveThinkingAPIResourceDeveloperById
+        Ref: RecursiveThinkingAPIResourceUsers
       HttpMethod: OPTIONS
       Integration:
         IntegrationResponses:
@@ -491,57 +574,97 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
-          
+
 # ================================================================
-# GET - /developers/{id}/edit
+# GET - /users/{id}
 # ================================================================
-  RecursiveThinkingAPIResourceDevelopersGETDeveloperByIdEditMethod:
+  RecursiveThinkingAPIResourceUsersGetUserById:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceDeveloperByIdEdit
+      ResourceId: !Ref RecursiveThinkingAPIResourceUserById
       RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetDeveloperByIdEdit.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWUserGetById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
 # ================================================================
-# POST - /developers/{id}/edit
+# DELETE - /users/{id}
 # ================================================================
-  RecursiveThinkingAPIResourceDevelopersPOSTDeveloperByIdEditMethod:
+  RecursiveThinkingAPIResourceUsersDeleteUserById:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceDeveloperByIdEdit
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "DELETE"
+      ResourceId: !Ref RecursiveThinkingAPIResourceUserById
       RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostDeveloperByIdEdit.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceDevelopersDeveloperByIdEditMethodCORSGetAndPostOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWUserDeleteById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
+# ================================================================
+# PUT - /users/{id}
+# ================================================================
+  RecursiveThinkingAPIResourceUsersPutUserById:
+    Type: "AWS::ApiGateway::Method"
+    # DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "PUT"
+      ResourceId: !Ref RecursiveThinkingAPIResourceUserById
+      RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWUserPutById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
+  RecursiveThinkingAPIResourceUsersUserByIdCORSGetDeletePutOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
       RestApiId:
         Ref: RecursiveThinkingAPI
       ResourceId:
-        Ref: RecursiveThinkingAPIResourceDeveloperByIdEdit
+        Ref: RecursiveThinkingAPIResourceUserById
       HttpMethod: OPTIONS
       Integration:
         IntegrationResponses:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,DELETE,PUT,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -557,24 +680,46 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+
 # ================================================================
 # GET - /lessons/
 # ================================================================
-  RecursiveThinkingAPIResourceLessonsGETMethod:
+  RecursiveThinkingAPIResourceLessonsGet:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceLessons
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetLessons.Arn}/invocations
-  RecursiveThinkingAPIResourceLessonsGETMethodCORSOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWLessonsGetAll.Arn}/invocations
+
+# ================================================================
+# POST - /lessons/
+# ================================================================
+  RecursiveThinkingAPIResourceLessonsPost:
+    Type: "AWS::ApiGateway::Method"
+    # DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"      
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "POST"
+      ResourceId: !Ref RecursiveThinkingAPIResourceLessons
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWLessonsPost.Arn}/invocations
+  
+  RecursiveThinkingAPIResourceLessonsCORSGetAndPostOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
@@ -588,7 +733,7 @@ Resources:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -604,42 +749,83 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+  
 # ================================================================
 # GET - /lessons/{id}
 # ================================================================
-  RecursiveThinkingAPIResourceLessonsGETLessonByIdMethod:
+  RecursiveThinkingAPIResourceLessonsGetLessonById:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceLessonById
       RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetLessonById.Arn}/invocations
-# # ================================================================
-# # POST - /lessons/{id}
-# # ================================================================
-  RecursiveThinkingAPIResourceLessonsPOSTLessonByIdMethod:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWLessonGetById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
+# ================================================================
+# DELETE - /lessons/{id}
+# ================================================================
+  RecursiveThinkingAPIResourceLessonsDeleteLessonById:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "DELETE"
       ResourceId: !Ref RecursiveThinkingAPIResourceLessonById
       RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostLessonById.Arn}/invocations
-  
-  RecursiveThinkingAPIResourceLessonsLessonByIdMethodCORSGetAndPostOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWLessonDeleteById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
+# ================================================================
+# PUT - /lessons/{id}
+# ================================================================
+  RecursiveThinkingAPIResourceLessonsPutLessonById:
+    Type: "AWS::ApiGateway::Method"
+    # DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "PUT"
+      ResourceId: !Ref RecursiveThinkingAPIResourceLessonById
+      RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWLessonPutById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+        
+  RecursiveThinkingAPIResourceLessonsLessonByIdCORSGetDeletePutOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
@@ -653,7 +839,7 @@ Resources:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,DELETE,PUT,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -669,90 +855,46 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
-# ================================================================
-# GET - /lessons/{id}/edit
-# ================================================================
-  RecursiveThinkingAPIResourceLessonsGETLessonByIdEditMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceLessonByIdEdit
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetLessonByIdEdit.Arn}/invocations
-# # ================================================================
-# # POST - /lessons/{id}/edit
-# # ================================================================
-  RecursiveThinkingAPIResourceLessonsPOSTLessonByIdEditMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceLessonByIdEdit
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostLessonByIdEdit.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceLessonsLessonByIdEditMethodCORSGetAndPostOptions:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      AuthorizationType: NONE
-      RestApiId:
-        Ref: RecursiveThinkingAPI
-      ResourceId:
-        Ref: RecursiveThinkingAPIResourceLessonByIdEdit
-      HttpMethod: OPTIONS
-      Integration:
-        IntegrationResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
-            method.response.header.Access-Control-Allow-Origin: "'*'"
-          ResponseTemplates:
-            application/json: ''
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        Type: MOCK
-      MethodResponses:
-      - StatusCode: 200
-        ResponseModels:
-          application/json: 'Empty'
-        ResponseParameters:
-          method.response.header.Access-Control-Allow-Headers: true
-          method.response.header.Access-Control-Allow-Methods: true
-          method.response.header.Access-Control-Allow-Origin: true
+
 # ================================================================
 # GET - /interviewQuestions/
 # ================================================================
-  RecursiveThinkingAPIResourceInterviewQuestionsGETMethod:
+  RecursiveThinkingAPIResourceInterviewQuestionsGet:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestions
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetInterviewQuestions.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceInterviewQuestionsGETMethodCORSOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsGetAll.Arn}/invocations
+          
+# ================================================================
+# POST - /interviewQuestions/
+# ================================================================
+  RecursiveThinkingAPIResourceInterviewQuestionsPost:
+    Type: "AWS::ApiGateway::Method"
+    # DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"      
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "POST"
+      ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestions
+      RestApiId: !Ref RecursiveThinkingAPI
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsPost.Arn}/invocations
+          
+  RecursiveThinkingAPIResourceInterviewQuestionsCORSGetAndPostOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
@@ -766,7 +908,7 @@ Resources:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -782,42 +924,83 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+
 # ================================================================
 # GET - /interviewQuestions/{id}
 # ================================================================
-  RecursiveThinkingAPIResourceInterviewQuestionsGETQuestionByIdMethod:
+  RecursiveThinkingAPIResourceInterviewQuestionsGetInterviewQuestionById:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionById
       RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetInterviewQuestionById.Arn}/invocations
-# # ================================================================
-# # POST - /interviewQuestions/{id}
-# # ================================================================
-  RecursiveThinkingAPIResourceInterviewQuestionsPOSTQuestionByIdMethod:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionGetById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
+# ================================================================
+# DELETE - /interviewQuestions/{id}
+# ================================================================
+  RecursiveThinkingAPIResourceInterviewQuestionsDeleteInterviewQuestionById:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "DELETE"
       ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionById
       RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostInterviewQuestionById.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionDeleteById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
+
+# ================================================================
+# PUT - /interviewQuestions/{id}
+# ================================================================
+  RecursiveThinkingAPIResourceInterviewQuestionsPutInterviewQuestionById:
+    Type: "AWS::ApiGateway::Method"
+    # DependsOn: RecursiveThinkingAuthorizer
+    Properties:
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      HttpMethod: "PUT"
+      ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionById
+      RestApiId: !Ref RecursiveThinkingAPI
+      # RequestParameters:
+        # method.request.path.id: true
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionPutById.Arn}/invocations
+        # CacheKeyParameters:
+        #   - 'method.request.path.id'
+        # RequestParameters:
+          # integration.request.path.id: 'method.request.path.id'
         
-  RecursiveThinkingAPIResourceInterviewQuestionsQuestionByIdMethodCORSGetAndPostOptions:
+  RecursiveThinkingAPIResourceInterviewQuestionsInterviewQuestionByIdCORSGetDeletePutOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
@@ -831,7 +1014,7 @@ Resources:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'GET,DELETE,PUT,OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -847,56 +1030,41 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+
 # ================================================================
-# GET - /interviewQuestions/{id}/edit
+# GET - /interviewquestionsanswers/
 # ================================================================
-  RecursiveThinkingAPIResourceInterviewQuestionsGETQuestionByIdEditMethod:
+  RecursiveThinkingAPIResourceInterviewQuestionsAnswersGet:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionByIdEdit
+      ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionsAnswers
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetInterviewQuestionByIdEdit.Arn}/invocations
-# # ================================================================
-# # POST - /interviewQuestions/{id}/edit
-# # ================================================================
-  RecursiveThinkingAPIResourceInterviewQuestionsPOSTQuestionByIdEditMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionByIdEdit
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostInterviewQuestionByIdEdit.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsAnswersGetAll.Arn}/invocations
         
-  RecursiveThinkingAPIResourceInterviewQuestionsQuestionByIdEditMethodCORSGetAndPostOptions:
+  RecursiveThinkingAPIResourceInterviewQuestionsAnswersGetCORSOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
       RestApiId:
         Ref: RecursiveThinkingAPI
       ResourceId:
-        Ref: RecursiveThinkingAPIResourceInterviewQuestionByIdEdit
+        Ref: RecursiveThinkingAPIResourceInterviewQuestionsAnswers
       HttpMethod: OPTIONS
       Integration:
         IntegrationResponses:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -912,56 +1080,41 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+
 # ================================================================
-# GET - /skillsProfessional/
+# GET - /skills/
 # ================================================================
-  RecursiveThinkingAPIResourceSkillsProfessionalGETMethod:
+  RecursiveThinkingAPIResourceSkillsGet:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsProfessional
+      ResourceId: !Ref RecursiveThinkingAPIResourceSkills
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsProfessional.Arn}/invocations
-# ================================================================
-# POST - /skillsProfessional/
-# ================================================================
-  RecursiveThinkingAPIResourceSkillsProfessionalPostMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsProfessional
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkillsProfessional.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceSkillsProfessionalMethodCORSGetAndPostOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWSkillsGetAll.Arn}/invocations
+
+  RecursiveThinkingAPIResourceSkillsGetCORSOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
       RestApiId:
         Ref: RecursiveThinkingAPI
       ResourceId:
-        Ref: RecursiveThinkingAPIResourceSkillsProfessional
+        Ref: RecursiveThinkingAPIResourceSkills
       HttpMethod: OPTIONS
       Integration:
         IntegrationResponses:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -977,121 +1130,60 @@ Resources:
           method.response.header.Access-Control-Allow-Headers: true
           method.response.header.Access-Control-Allow-Methods: true
           method.response.header.Access-Control-Allow-Origin: true
+
 # ================================================================
-# GET - /skillsSoftware/
+# POST - /skills/
 # ================================================================
-  RecursiveThinkingAPIResourceSkillsSoftwareGETMethod:
+  # RecursiveThinkingAPIResourceSkillsMethodPost:
+  #   Type: "AWS::ApiGateway::Method"
+  #   # DependsOn: RecursiveThinkingAuthorizer
+  #   Properties:
+  #     # ApiKeyRequired: False
+  #     AuthorizationType: "NONE"
+  #     # AuthorizationType: "COGNITO_USER_POOLS"
+  #     # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+  #     HttpMethod: "POST"
+  #     ResourceId: !Ref RecursiveThinkingAPIResourceSkills
+  #     RestApiId: !Ref RecursiveThinkingAPI
+  #     Integration:
+  #       Type: AWS_PROXY
+  #       IntegrationHttpMethod: POST
+  #       Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkills.Arn}/invocations
+
+# ================================================================
+# GET - /homescreenquotes/
+# ================================================================
+  RecursiveThinkingAPIResourceHomeScreenQuotesGet:
     Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
+    # DependsOn: RecursiveThinkingAuthorizer
     Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # ApiKeyRequired: False
+      AuthorizationType: "NONE"
+      # AuthorizationType: "COGNITO_USER_POOLS"
+      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsSoftware
+      ResourceId: !Ref RecursiveThinkingAPIResourceHomeScreenQuotes
       RestApiId: !Ref RecursiveThinkingAPI
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsSoftware.Arn}/invocations
-# ================================================================
-# POST - /skillsSoftware/
-# ================================================================
-  RecursiveThinkingAPIResourceSkillsSoftwarePostMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsSoftware
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkillsSoftware.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceSkillsSoftwareMethodCORSGetAndPostOptions:
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWHomeScreenQuotesGetAll.Arn}/invocations
+
+  RecursiveThinkingAPIResourceHomeScreenQuotesGetCORSOptions:
     Type: "AWS::ApiGateway::Method"
     Properties:
       AuthorizationType: NONE
       RestApiId:
         Ref: RecursiveThinkingAPI
       ResourceId:
-        Ref: RecursiveThinkingAPIResourceSkillsSoftware
+        Ref: RecursiveThinkingAPIResourceHomeScreenQuotes
       HttpMethod: OPTIONS
       Integration:
         IntegrationResponses:
         - StatusCode: 200
           ResponseParameters:
             method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
-            method.response.header.Access-Control-Allow-Origin: "'*'"
-          ResponseTemplates:
-            application/json: ''
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
-        Type: MOCK
-      MethodResponses:
-      - StatusCode: 200
-        ResponseModels:
-          application/json: 'Empty'
-        ResponseParameters:
-          method.response.header.Access-Control-Allow-Headers: true
-          method.response.header.Access-Control-Allow-Methods: true
-          method.response.header.Access-Control-Allow-Origin: true
-# ================================================================
-# GET - /skillsLanguage/
-# ================================================================
-  RecursiveThinkingAPIResourceSkillsLanguageGETMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "GET"
-      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsLanguage
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWGetSkillsLanguage.Arn}/invocations
-# ================================================================
-# POST - /skillsLanguage/
-# ================================================================
-  RecursiveThinkingAPIResourceSkillsLanguagePostMethod:
-    Type: "AWS::ApiGateway::Method"
-    DependsOn: RecursiveThinkingAuthorizer
-    Properties:
-      ApiKeyRequired: False
-      AuthorizationType: "COGNITO_USER_POOLS"
-      AuthorizerId: !Ref RecursiveThinkingAuthorizer
-      HttpMethod: "POST"
-      ResourceId: !Ref RecursiveThinkingAPIResourceSkillsLanguage
-      RestApiId: !Ref RecursiveThinkingAPI
-      Integration:
-        Type: AWS_PROXY
-        IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWPostSkillsLanguage.Arn}/invocations
-        
-  RecursiveThinkingAPIResourceSkillsLanguageMethodCORSGetAndPostOptions:
-    Type: "AWS::ApiGateway::Method"
-    Properties:
-      AuthorizationType: NONE
-      RestApiId:
-        Ref: RecursiveThinkingAPI
-      ResourceId:
-        Ref: RecursiveThinkingAPIResourceSkillsLanguage
-      HttpMethod: OPTIONS
-      Integration:
-        IntegrationResponses:
-        - StatusCode: 200
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-            method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+            method.response.header.Access-Control-Allow-Methods: "'OPTIONS'"
             method.response.header.Access-Control-Allow-Origin: "'*'"
           ResponseTemplates:
             application/json: ''
@@ -1131,178 +1223,188 @@ Resources:
 # Action = IAM action ( in this case lambda:* ) meaning anything, we prob just need lambda:Invoke.
 # FunctionName = Name of function to attach the permission to.
 # Principal = The service that will have permission to invoke the function.
+
+# FROM THE CONSOLE, if you load a Lambda into an Integration Request, you'll get a dialogue like this:
+# Add Permission to Lambda Function
+# You are about to give API Gateway permission to invoke your Lambda function:
+# arn:aws:lambda:us-west-2:918861449844:function:<functionName>
+
+# PREVIOUS PERMISSION LOOKED LIKE THIS (BUT DIDN'T include API GATEWAY as a Trigger)
+  # RecursiveThinkingLambdaPermissionUsersGet:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     Action: lambda:*
+  #     FunctionName: !Ref RTWUsersGetAll
+  #     Principal: apigateway.amazonaws.com
+  
+# Examples below correct this.  Need to work on a way to dynamically get 
+
+# "Condition": {
+#     "ArnLike": {
+#       "AWS:SourceArn": "arn:aws:execute-api:us-west-2:918861449844:s5iskglt5c/*/GET/users"
+#     }
+#   }
+
 # ================================================================
-# PERMISSION - GET - /developers/
+# PERMISSION - GET - /users/
 # ================================================================
-  RecursiveThinkingLambdaGetDevelopersPermission:
+  RecursiveThinkingLambdaPermissionUsersGet:
     Type: "AWS::Lambda::Permission"
     Properties:
+      FunctionName: !Ref RTWUsersGetAll
       Action: lambda:*
-      FunctionName: !Ref RTWGetDevelopers
+      # Action: "lambda:InvokeFunction"
       Principal: apigateway.amazonaws.com
+      # SourceArn:
+      #   Fn::Join:
+      #   - ""
+      #   - - "arn:aws:execute-api:"
+      #     - Ref: "AWS::Region"
+      #     - ":"
+      #     - Ref: "AWS::AccountId"
+      #     - ":"
+      #     - Ref: RecursiveThinkingAPI
+      #     - "/*/GET/users"
+          
+          # - "/*/"
+          # - Ref: RecursiveThinkingAPIResourceUsersMethodGET.HttpMethod
+          # - "/"
+          # - Ref: RecursiveThinkingAPIResourceUsers.PathPart
 # ================================================================
-# PERMISSION - GET - /developers/{id}
+# PERMISSION - GET - /users/{id}
 # ================================================================
-  RecursiveThinkingLambdaGetDeveloperByIdPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetDeveloperById
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /developers/{id}
-# ================================================================
-  RecursiveThinkingLambdaPostDeveloperByIdPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostDeveloperById
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /developers/{id}/edit
-# ================================================================
-  RecursiveThinkingLambdaGetDeveloperByIdEditPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetDeveloperByIdEdit
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /developers/{id}/edit
-# ================================================================
-  RecursiveThinkingLambdaPostDeveloperByIdEditPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostDeveloperByIdEdit
-      Principal: apigateway.amazonaws.com
+  # RecursiveThinkingLambdaGetDeveloperByIdPermission:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     Action: lambda:*
+  #     FunctionName: !Ref RTWGetDeveloperById
+  #     Principal: apigateway.amazonaws.com
+
 # ================================================================
 # PERMISSION - GET - /lessons/
 # ================================================================
-  RecursiveThinkingLambdaLessonsGetLessonsPermission:
+  RecursiveThinkingLambdaPermissionLessonsGet:
     Type: "AWS::Lambda::Permission"
     Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetLessons
+      FunctionName: !Ref RTWLessonsGetAll
+      Action: "lambda:InvokeFunction"
       Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ""
+        - - "arn:aws:execute-api:"
+          - Ref: "AWS::Region"
+          - ":"
+          - Ref: "AWS::AccountId"
+          - ":"
+          - Ref: RecursiveThinkingAPI
+          - "/*/GET/lessons"
 # ================================================================
 # PERMISSION - GET - /lessons/{id}
 # ================================================================
-  RecursiveThinkingLambdaLessonsGetLessonByIdPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetLessonById
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /lessons/{id}
-# ================================================================
-  RecursiveThinkingLambdaLessonsPostLessonByIdPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostLessonById
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /interviewQuestions/
-# ================================================================
-  RecursiveThinkingLambdaInterviewQuestionsGetPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetInterviewQuestions
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /interviewQuestions/{id}
-# ================================================================
-  RecursiveThinkingLambdaInterviewQuestionsGetInterviewQuestionByIDPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetInterviewQuestionById
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /interviewQuestions/{id}
-# ================================================================
-  RecursiveThinkingLambdaInterviewQuestionsPostInterviewQuestionByIDPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostInterviewQuestionById
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /interviewQuestions/{id}/edit
-# ================================================================
-  RecursiveThinkingLambdaInterviewQuestionsGetInterviewQuestionByIDEditPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetInterviewQuestionByIdEdit
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /interviewQuestions/{id}/edit
-# ================================================================
-  RecursiveThinkingLambdaInterviewQuestionsPostInterviewQuestionByIDEditPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostInterviewQuestionByIdEdit
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /skillsProfessional/
-# ================================================================
-  RecursiveThinkingLambdaGetSkillsProfessionalPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetSkillsProfessional
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /skillsProfessional/
-# ================================================================
-  RecursiveThinkingLambdaPostSkillsProfessionalPermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostSkillsProfessional
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /skillsSoftware/
-# ================================================================
-  RecursiveThinkingLambdaGetSkillsSoftwarePermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetSkillsSoftware
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /skillsSoftware/
-# ================================================================
-  RecursiveThinkingLambdaPostSkillsSoftwarePermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostSkillsSoftware
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - GET - /skillsLanguage/
-# ================================================================
-  RecursiveThinkingLambdaGetSkillsLanguagePermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWGetSkillsLanguage
-      Principal: apigateway.amazonaws.com
-# ================================================================
-# PERMISSION - POST - /skillsLanguage/
-# ================================================================
-  RecursiveThinkingLambdaPostSkillsLanguagePermission:
-    Type: "AWS::Lambda::Permission"
-    Properties:
-      Action: lambda:*
-      FunctionName: !Ref RTWPostSkillsLanguage
-      Principal: apigateway.amazonaws.com
+  # RecursiveThinkingLambdaLessonsGetLessonByIdPermission:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     Action: lambda:*
+  #     FunctionName: !Ref RTWGetLessonById
+  #     Principal: apigateway.amazonaws.com
 
+# ================================================================
+# PERMISSION - GET - /interviewquestions/
+# ================================================================
+  RecursiveThinkingLambdaPermissionInterviewQuestionsGet:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !Ref RTWInterviewQuestionsGetAll
+      Action: "lambda:InvokeFunction"
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ""
+        - - "arn:aws:execute-api:"
+          - Ref: "AWS::Region"
+          - ":"
+          - Ref: "AWS::AccountId"
+          - ":"
+          - Ref: RecursiveThinkingAPI
+          - "/*/GET/interviewquestions"
+# ================================================================
+# PERMISSION - GET - /interviewquestions/{id}
+# ================================================================
+  # RecursiveThinkingLambdaInterviewQuestionsGetInterviewQuestionByIDPermission:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     Action: lambda:*
+  #     FunctionName: !Ref RTWGetInterviewQuestionById
+  #     Principal: apigateway.amazonaws.com
+
+# ================================================================
+# PERMISSION - GET - /interviewquestionsanswers/
+# ================================================================
+  RecursiveThinkingLambdaPermissionInterviewQuestionsAnswersGet:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !Ref RTWInterviewQuestionsAnswersGetAll
+      Action: "lambda:InvokeFunction"
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ""
+        - - "arn:aws:execute-api:"
+          - Ref: "AWS::Region"
+          - ":"
+          - Ref: "AWS::AccountId"
+          - ":"
+          - Ref: RecursiveThinkingAPI
+          - "/*/GET/interviewquestionsanswers"
+# ================================================================
+# PERMISSION - GET - /skills/
+# ================================================================
+  RecursiveThinkingLambdaPermissionSkillsGet:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !Ref RTWSkillsGetAll
+      Action: "lambda:InvokeFunction"
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ""
+        - - "arn:aws:execute-api:"
+          - Ref: "AWS::Region"
+          - ":"
+          - Ref: "AWS::AccountId"
+          - ":"
+          - Ref: RecursiveThinkingAPI
+          - "/*/GET/skills"
+      
+# ================================================================
+# PERMISSION - POST - /skills/
+# ================================================================
+  # RecursiveThinkingLambdaPostSkillsProfessionalPermission:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     Action: lambda:*
+  #     FunctionName: !Ref RTWPostSkills
+  #     Principal: apigateway.amazonaws.com
+# ================================================================
+# PERMISSION - GET - /homescreenquotes/
+# ================================================================
+  RecursiveThinkingLambdaPermissionHomeScreenQuotesGet:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      FunctionName: !Ref RTWHomeScreenQuotesGetAll
+      Action: "lambda:InvokeFunction"
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+        - ""
+        - - "arn:aws:execute-api:"
+          - Ref: "AWS::Region"
+          - ":"
+          - Ref: "AWS::AccountId"
+          - ":"
+          - Ref: RecursiveThinkingAPI
+          - "/*/GET/homescreenquotes"
 
 # AWS::Lambda::Function = Lambda functions! We point to the AssetsS3Bucket and a zip file equal
 # to the functions name, as our code source.  (This all gets created in our Python Script).
@@ -1318,432 +1420,499 @@ Resources:
 # ================================================================
 
 # ================================================================
-# LAMBDA - GET - /developers/
+# LAMBDA - GET - /users/
 # ================================================================
-  RTWGetDevelopers:
+  RTWUsersGetAll:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingUsers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDevelopers.zip"] ]
-      Description: "Get RTW Developers"
-      FunctionName: "RTWGetDevelopers"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWUsersGetAll.zip"] ]
+      Description: "RTW Users Get All"
+      FunctionName: "RTWUsersGetAll"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingDeveloperProfiles
-      Handler: index.GetDevelopers
+          TABLE: !Ref RecursiveThinkingUsers
+      Handler: index.UsersGetAll
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
-# LAMBDA - GET - /developers/{id}
+# LAMBDA - POST - /users/
 # ================================================================
-  RTWGetDeveloperById:
+  RTWUsersPost:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingUsers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDeveloperById.zip"] ]
-      Description: "Get RTW Developer By Id"
-      FunctionName: "RTWGetDeveloperById"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWUsersPost.zip"] ]
+      Description: "RTW Users Post"
+      FunctionName: "RTWUsersPost"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingDeveloperProfiles
-      Handler: index.GetDeveloperById
+          TABLE: !Ref RecursiveThinkingUsers
+      Handler: index.UsersPost
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn      
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
-# # ================================================================
-# LAMBDA - POST - /developers/{id}
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
-  RTWPostDeveloperById:
+# LAMBDA - GET - /users/{id}
+# ================================================================
+  RTWUserGetById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingUsers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostDeveloperById.zip"] ]
-      Description: "Post RTW Developer By Id"
-      FunctionName: "RTWPostDeveloperById"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWUserGetById.zip"] ]
+      Description: "RTW Get User By Id"
+      FunctionName: "RTWUserGetById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingDeveloperProfiles
-      Handler: index.PostDeveloperById
+          TABLE: !Ref RecursiveThinkingUsers
+      Handler: index.UserGetById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn      
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
-# LAMBDA - GET - /developers/{id}/edit
+# LAMBDA - DELETE - /users/{id}
 # ================================================================
-  RTWGetDeveloperByIdEdit:
+  RTWUserDeleteById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingUsers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetDeveloperByIdEdit.zip"] ]
-      Description: "Get RTW Developer By Id Edit"
-      FunctionName: "RTWGetDeveloperByIdEdit"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWUserDeleteById.zip"] ]
+      Description: "RTW Delete User By Id"
+      FunctionName: "RTWUserDeleteById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingDeveloperProfiles
-      Handler: index.GetDeveloperByIdEdit
+          TABLE: !Ref RecursiveThinkingUsers
+      Handler: index.UserDeleteById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoDeleteItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
-# # ================================================================
-# LAMBDA - POST - /developers/{id}/edit
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
-  RTWPostDeveloperByIdEdit:
+# LAMBDA - PUT OR PATCH - /users/{id}
+# ================================================================
+  RTWUserPutById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingUsers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostDeveloperByIdEdit.zip"] ]
-      Description: "Post RTW Developer By Id Edit"
-      FunctionName: "RTWPostDeveloperByIdEdit"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWUserPutById.zip"] ]
+      Description: "RTW Put User By Id"
+      FunctionName: "RTWUserPutById"
       Environment:
         Variables:
-          TABLE: !Ref RecursiveThinkingDeveloperProfiles
-      Handler: index.PostDeveloperByIdEdit
+          TABLE: !Ref RecursiveThinkingUsers
+      Handler: index.UserPutById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
 # LAMBDA - GET - /lessons/
 # ================================================================
-  RTWGetLessons:
+  RTWLessonsGetAll:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingLessons
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessons.zip"] ]
-      Description: "Get RTW Lessons"
-      FunctionName: "RTWGetLessons"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWLessonsGetAll.zip"] ]
+      Description: "RTW Lessons Get All"
+      FunctionName: "RTWLessonsGetAll"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingLessons
-      Handler: index.GetLessons
+      Handler: index.LessonsGetAll
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+          
+# ================================================================
+# LAMBDA - POST - /lessons
+# ================================================================
+  RTWLessonsPost:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingLessons
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetsS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWLessonsPost.zip"] ]
+      Description: "RTW Lessons Post"
+      FunctionName: "RTWLessonsPost"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingLessons
+      Handler: index.LessonsPost
+      MemorySize: 128
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
+      Runtime: nodejs8.10
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+  
 # ================================================================
 # LAMBDA - GET - /lessons/{id}
 # ================================================================
-  RTWGetLessonById:
+  RTWLessonGetById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingLessons
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessonById.zip"] ]
-      Description: "Get RTW Lesson By Id"
-      FunctionName: "RTWGetLessonById"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWLessonGetById.zip"] ]
+      Description: "RTW Get Lesson By Id"
+      FunctionName: "RTWLessonGetById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingLessons
-      Handler: index.GetLessonById
+      Handler: index.LessonGetById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+          
 # ================================================================
-# LAMBDA - POST - /lessons/{id}
+# LAMBDA - DELETE - /lessons/{id}
 # ================================================================
-  RTWPostLessonById:
+  RTWLessonDeleteById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingLessons
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostLessonById.zip"] ]
-      Description: "Post RTW Lesson By Id"
-      FunctionName: "RTWPostLessonById"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWLessonDeleteById.zip"] ]
+      Description: "RTW Delete Lesson By Id"
+      FunctionName: "RTWLessonDeleteById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingLessons
-      Handler: index.PostLessonById
+      Handler: index.LessonDeleteById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoDeleteItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
-# LAMBDA - GET - /lessons/{id}/edit
+# LAMBDA - PUT OR PATCH - /lessons/{id}
 # ================================================================
-  RTWGetLessonByIdEdit:
+  RTWLessonPutById:
     Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
+    DependsOn: RecursiveThinkingLessons
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetLessonByIdEdit.zip"] ]
-      Description: "Get RTW Lesson By Id Edit"
-      FunctionName: "RTWGetLessonByIdEdit"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWLessonPutById.zip"] ]
+      Description: "RTW Put Lesson By Id"
+      FunctionName: "RTWLessonPutById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingLessons
-      Handler: index.GetLessonByIdEdit
+      Handler: index.LessonPutById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - POST - /lessons/{id}/edit
-# ================================================================
-  RTWPostLessonByIdEdit:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingDeveloperProfiles
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostLessonByIdEdit.zip"] ]
-      Description: "Post RTW Lesson By Id Edit"
-      FunctionName: "RTWPostLessonByIdEdit"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingLessons
-      Handler: index.PostLessonByIdEdit
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
 # LAMBDA - GET - /interviewQuestions/
 # ================================================================
-  RTWGetInterviewQuestions:
+  RTWInterviewQuestionsGetAll:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetInterviewQuestions.zip"] ]
-      Description: "Get RTW Interview Questions"
-      FunctionName: "RTWGetInterviewQuestions"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsGetAll.zip"] ]
+      Description: "RTW Interview Questions Get All"
+      FunctionName: "RTWInterviewQuestionsGetAll"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestions
-      Handler: index.GetInterviewQuestions
+      Handler: index.InterviewQuestionsGetAll
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
+# ================================================================
+# LAMBDA - POST - /interviewQuestions
+# ================================================================
+  RTWInterviewQuestionsPost:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingInterviewQuestions
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetsS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsPost.zip"] ]
+      Description: "RTW Interview Questions Post"
+      FunctionName: "RTWInterviewQuestionsPost"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
+      Handler: index.InterviewQuestionsPost
+      MemorySize: 128
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
+      Runtime: nodejs8.10
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
 # ================================================================
 # LAMBDA - GET - /interviewQuestions/{id}
 # ================================================================
-  RTWGetInterviewQuestionById:
+  RTWInterviewQuestionGetById:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetInterviewQuestionById.zip"] ]
-      Description: "Get RTW Interview Question By Id"
-      FunctionName: "RTWGetInterviewQuestionById"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionGetById.zip"] ]
+      Description: "RTW Get Interview Question By Id"
+      FunctionName: "RTWInterviewQuestionGetById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestions
-      Handler: index.GetInterviewQuestionById
+      Handler: index.InterviewQuestionGetById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+          
 # ================================================================
-# LAMBDA - POST - /interviewQuestions/{id}
+# LAMBDA - DELETE - /interviewQuestions/{id}
 # ================================================================
-  RTWPostInterviewQuestionById:
+  RTWInterviewQuestionDeleteById:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestions
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostInterviewQuestionById.zip"] ]
-      Description: "Post RTW Interview Question By Id"
-      FunctionName: "RTWPostInterviewQuestionById"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionDeleteById.zip"] ]
+      Description: "RTW Interview Question By Id"
+      FunctionName: "RTWInterviewQuestionDeleteById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestions
-      Handler: index.PostInterviewQuestionById
+      Handler: index.InterviewQuestionDeleteById
       MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoDeleteItem.Arn
       Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - GET - /interviewQuestions/{id}/edit
-# ================================================================
-  RTWGetInterviewQuestionByIdEdit:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingInterviewQuestions
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetInterviewQuestionByIdEdit.zip"] ]
-      Description: "Get RTW Interview Question By Id Edit"
-      FunctionName: "RTWGetInterviewQuestionByIdEdit"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingInterviewQuestions
-      Handler: index.GetInterviewQuestionByIdEdit
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - POST - /interviewQuestions/{id}/edit
-# ================================================================
-  RTWPostInterviewQuestionByIdEdit:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingInterviewQuestions
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostInterviewQuestionByIdEdit.zip"] ]
-      Description: "Post RTW Interview Question By Id Edit"
-      FunctionName: "RTWPostInterviewQuestionByIdEdit"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingInterviewQuestions
-      Handler: index.PostInterviewQuestionByIdEdit
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - GET - /skillsProfessional/
-# ================================================================
-  RTWGetSkillsProfessional:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingProfileSkillsProfessional
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetSkillsProfessional.zip"] ]
-      Description: "Get RTW Skills Professional"
-      FunctionName: "RTWGetSkillsProfessional"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingProfileSkillsProfessional
-      Handler: index.GetSkillsProfessional
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - POST - /skillsProfessional/
-# ================================================================
-  RTWPostSkillsProfessional:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingProfileSkillsProfessional
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsProfessional.zip"] ]
-      Description: "Post RTW Skills Professional"
-      FunctionName: "RTWPostSkillsProfessional"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingProfileSkillsProfessional
-      Handler: index.PostSkillsProfessional
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - GET - /skillsSoftware/
-# ================================================================
-  RTWGetSkillsSoftware:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingProfileSkillsSoftware
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetSkillsSoftware.zip"] ]
-      Description: "Get RTW Skills Software"
-      FunctionName: "RTWGetSkillsSoftware"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingProfileSkillsSoftware
-      Handler: index.GetSkillsSoftware
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - POST - /skillsSoftware/
-# ================================================================
-  RTWPostSkillsSoftware:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingProfileSkillsSoftware
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsSoftware.zip"] ]
-      Description: "Post RTW Skills Software"
-      FunctionName: "RTWPostSkillsSoftware"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingProfileSkillsSoftware
-      Handler: index.PostSkillsSoftware
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - GET - /skillsLanguage/
-# ================================================================
-  RTWGetSkillsLanguage:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingProfileSkillsLanguage
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/GetSkillsLanguage.zip"] ]
-      Description: "Get RTW Skills Language"
-      FunctionName: "RTWGetSkillsLanguage"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingProfileSkillsLanguage
-      Handler: index.GetSkillsLanguage
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
-# ================================================================
-# LAMBDA - POST - /skillsLanguage/
-# ================================================================
-  RTWPostSkillsLanguage:
-    Type: "AWS::Lambda::Function"
-    DependsOn: RecursiveThinkingProfileSkillsLanguage
-    Properties:
-      Code:
-        S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsLanguage.zip"] ]
-      Description: "Post RTW Skills Language"
-      FunctionName: "RTWPostSkillsLanguage"
-      Environment:
-        Variables:
-          TABLE: !Ref RecursiveThinkingProfileSkillsLanguage
-      Handler: index.PostSkillsLanguage
-      MemorySize: 128
-      Role: !GetAtt RecursiveThinkingLambdaRole.Arn
-      Runtime: nodejs8.10
-      Timeout: 60
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
 
+# ================================================================
+# LAMBDA - PUT OR PATCH - /interviewQuestions/{id}
+# ================================================================
+  RTWInterviewQuestionPutById:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingInterviewQuestions
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetsS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionPutById.zip"] ]
+      Description: "RTW Put Interview Question By Id"
+      FunctionName: "RTWInterviewQuestionPutById"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingInterviewQuestions
+      Handler: index.InterviewQuestionPutById
+      MemorySize: 128
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
+      Runtime: nodejs8.10
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
+# ================================================================
+# LAMBDA - GET - /interviewquestionsanswers/
+# ================================================================
+  RTWInterviewQuestionsAnswersGetAll:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingInterviewQuestionsAnswers
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetsS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsAnswersGetAll.zip"] ]
+      Description: "RTW Interview Questions Answers Get All"
+      FunctionName: "RTWInterviewQuestionsAnswersGetAll"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingInterviewQuestionsAnswers
+      Handler: index.InterviewQuestionsAnswersGetAll
+      MemorySize: 128
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
+      Runtime: nodejs8.10
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+
+# ================================================================
+# LAMBDA - GET - /skills/
+# ================================================================
+  RTWSkillsGetAll:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingProfileSkills
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetsS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWSkillsGetAll.zip"] ]
+      Description: "RTW Skills Get All"
+      FunctionName: "RTWSkillsGetAll"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingProfileSkills
+      Handler: index.SkillsGetAll
+      MemorySize: 128
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
+      Runtime: nodejs8.10
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+# ================================================================
+# LAMBDA - POST - /skills/
+# ================================================================
+  # RTWPostSkillsLanguage:
+  #   Type: "AWS::Lambda::Function"
+  #   DependsOn: RecursiveThinkingProfileSkillsLanguage
+  #   Properties:
+  #     Code:
+  #       S3Bucket: !Ref AssetsS3Bucket
+  #       S3Key: !Join [ "", [ !Ref LambdaFolder, "/PostSkillsLanguage.zip"] ]
+  #     Description: "Post RTW Skills Language"
+  #     FunctionName: "RTWPostSkillsLanguage"
+  #     Environment:
+  #       Variables:
+  #         TABLE: !Ref RecursiveThinkingProfileSkillsLanguage
+  #     Handler: index.PostSkillsLanguage
+  #     MemorySize: 128
+  #     Role: !GetAtt RTWIAMRoleLambda.Arn
+  #     Runtime: nodejs8.10
+  #     Timeout: 60
+
+# ================================================================
+# LAMBDA - GET - /homescreenquotes/
+# ================================================================
+  RTWHomeScreenQuotesGetAll:
+    Type: "AWS::Lambda::Function"
+    DependsOn: RecursiveThinkingHomeScreenQuotes
+    Properties:
+      Code:
+        S3Bucket: !Ref AssetsS3Bucket
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWHomeScreenQuotesGetAll.zip"] ]
+      Description: "RTW Home Screen Quotes Get All"
+      FunctionName: "RTWHomeScreenQuotesGetAll"
+      Environment:
+        Variables:
+          TABLE: !Ref RecursiveThinkingHomeScreenQuotes
+      Handler: index.HomeScreenQuotesGetAll
+      MemorySize: 128
+      Role: !GetAtt RTWIAMRoleLambda.Arn
+      # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
+      Runtime: nodejs8.10
+      Timeout: 8
+      Tags:
+        -
+          Key: project
+          Value: RecursiveThinkingWebsite
+  
 # AWS::DynamoDB::Table = DynamoDB tables.  They must specify at least one primary key.  The primary
 # key has to be unique across all records in the table, so we specify type HASH.
 # ================================================================
-# DYNAMODB - /developers/
+# DYNAMODB - /users/
 # ================================================================
-  RecursiveThinkingDeveloperProfiles:
+  RecursiveThinkingUsers:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
@@ -1755,7 +1924,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingDeveloperProfiles"
+      TableName: "RecursiveThinkingUsers"
 # ================================================================
 # DYNAMODB - /lessons/
 # ================================================================
@@ -1789,25 +1958,25 @@ Resources:
         WriteCapacityUnits: 1
       TableName: "RecursiveThinkingInterviewQuestions"
 # ================================================================
-# DYNAMODB - /interviewQuestions/{id}/answers/
+# DYNAMODB - /interviewQuestionsAnswers
 # ================================================================
-  # RecursiveThinkingInterviewQuestionsAnswers:
-  #   Type: "AWS::DynamoDB::Table"
-  #   Properties:
-  #     AttributeDefinitions:
-  #       - AttributeName: "Id"
-  #         AttributeType: "S"
-  #     KeySchema:
-  #       - AttributeName: "Id"
-  #         KeyType: HASH
-  #     ProvisionedThroughput:
-  #       ReadCapacityUnits: 1
-  #       WriteCapacityUnits: 1
-  #     TableName: "RecursiveThinkingInterviewQuestionsAnswers"
+  RecursiveThinkingInterviewQuestionsAnswers:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: "RecursiveThinkingInterviewQuestionsAnswers"
 # ================================================================
 # DYNAMODB - Master Table for UserProfile Skills - Professional
 # ================================================================
-  RecursiveThinkingProfileSkillsProfessional:
+  RecursiveThinkingProfileSkills:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
@@ -1819,39 +1988,7 @@ Resources:
       ProvisionedThroughput:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingProfileSkillsProfessional"
-# ================================================================
-# DYNAMODB - Master Table for UserProfile Skills - Software
-# ================================================================
-  RecursiveThinkingProfileSkillsSoftware:
-    Type: "AWS::DynamoDB::Table"
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "Id"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "Id"
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingProfileSkillsSoftware"
-# ================================================================
-# DYNAMODB - Master Table for UserProfile Skills - Languages
-# ================================================================
-  RecursiveThinkingProfileSkillsLanguage:
-    Type: "AWS::DynamoDB::Table"
-    Properties:
-      AttributeDefinitions:
-        - AttributeName: "Id"
-          AttributeType: "S"
-      KeySchema:
-        - AttributeName: "Id"
-          KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: 1
-        WriteCapacityUnits: 1
-      TableName: "RecursiveThinkingProfileSkillsLanguage"
+      TableName: "RecursiveThinkingProfileSkills"
 # ================================================================
 # DYNAMODB - Master Table for HomeScreen Quotes
 # ================================================================
