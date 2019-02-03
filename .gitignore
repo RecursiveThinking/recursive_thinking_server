@@ -4,3 +4,6 @@
 /node_modules
 /s3_Bucket
 /_arch
+/BETA_db_fill
+
+PersonalNotes.md
