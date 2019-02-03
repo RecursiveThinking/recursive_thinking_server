@@ -35,7 +35,8 @@ parser.add_argument("--template", help="A file path to the CF template.  e.g. ./
 parser.add_argument("--assets", help="A file path to the lambdas folder e.g. ./lambdas", default="./lambdas")
 parser.add_argument("--stage", help="Stage to deploy the stack to", default="")
 parser.add_argument("--s3bucket", help="Name of the S3 bucket to deploy assets to")
-parser.add_argument("--website-directory", help="The directory of the website package (so we can dump secrets into it.", default=join('..', 'recursive_thinking_website'))
+# parser.add_argument("--website-directory", help="The directory of the website package (so we can dump secrets into it.", default=join('..', 'recursive_thinking_website'))
+parser.add_argument("--website-directory", help="The directory of the website package (so we can dump secrets into it.", default=join('..', 'recursive_thinking_website_react_sandbox/recursive_thinking_website_react_cra/src/_credentials'))
 parser.add_argument("--region", help="The AWS region to create your assets in.", default="us-west-2")
 args = parser.parse_args()
 
@@ -43,15 +44,21 @@ assetsS3bucket = args.s3bucket
 userAssetsS3Bucket = args.s3bucket
 
 # create a (hopefully) unique s3bucket if none was defined
+
+# CHANGED TWO PATHS HERE BECAUSE IM WORKING ON MY OWN
 if assetsS3bucket == None:
     if sys.version_info < (3, 0):
         stripedUserName = check_output("git config --global user.email", shell=True).replace('@','-').replace('.', '-').rstrip()
-        assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
-        userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
+        # assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
+        assetsS3bucket = 'recursive-thinking-react-assets-' + args.region + '-' + stripedUserName        
+        # userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
+        userAssetsS3Bucket = 'rt-user-react-assets-' + args.region + '-' + stripedUserName
     else:
         stripedUserName = str(check_output("git config --global user.email", shell=True), 'utf-8').replace('@','-').replace('.', '-').rstrip()
-        assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
-        userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
+        # assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
+        assetsS3bucket = 'recursive-thinking-react-assets-' + args.region + '-' + stripedUserName
+        # userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
+        userAssetsS3Bucket = 'rt-user-react-assets-' + args.region + '-' + stripedUserName
 
 # make the s3 bucket (seems to fail silently if the bucket is already made, so yay!)
 call('aws s3 mb "s3://{0}" --region={1}'.format(assetsS3bucket, args.region), shell=True)
@@ -87,10 +94,10 @@ for subdir in os.listdir(args.assets):
         call("rm -f {0}".format(zip_file_path), shell=True)
 
 # execute the cloudformation update
-call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetsS3Bucket={3} UserAssetsS3Bucket={5} --region={4}".format(args.stage, args.template, build_dir, assetsS3bucket, args.region, userAssetsS3Bucket), shell=True)
+call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server-react{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetsS3Bucket={3} UserAssetsS3Bucket={5} --region={4}".format(args.stage, args.template, build_dir, assetsS3bucket, args.region, userAssetsS3Bucket), shell=True)
 
 # autoload users from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingDeveloperProfiles.json --region={0}".format(args.region), shell=True)
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingUsers.json --region={0}".format(args.region), shell=True)
 # autoload homeScreen quotes from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingHomeScreenQuotes.json --region={0}".format(args.region), shell=True)
 # autoload ranks from json to Dynamo
@@ -99,26 +106,33 @@ call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThin
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingLessons.json --region={0}".format(args.region), shell=True)
 # autoload lessons from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingInterviewQuestions.json --region={0}".format(args.region), shell=True)
+# autoload lessons from json to Dynamo
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingInterviewQuestionsAnswers.json --region={0}".format(args.region), shell=True)
 # autoload skills from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsProfessional.json --region={0}".format(args.region), shell=True)
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsSoftware.json --region={0}".format(args.region), shell=True)
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkillsLanguage.json --region={0}".format(args.region), shell=True)
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkills1.json --region={0}".format(args.region), shell=True)
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkills2.json --region={0}".format(args.region), shell=True)
+
 
 # get stack info
-status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server", args.region), shell=True)
+status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server-react", args.region), shell=True)
 stack_response = json.loads(status)
-# print("stack response")
-# print(stack_response)
+print(stack_response)
 
-check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region), shell=True)
+# this needs the api value (same as the APIURL below)
+# This makes a "dev" Stage for the API and deploys it.
+check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name dev --region={1}'.format(stack_response["Stacks"][0]["Outputs"][1]["OutputValue"], args.region), shell=True)
 
+#  Look for this in outputs
+# 'Description': 'apiUrl - The base id of the api, used for constructing the api url to make requests'
 credentials = {
     "region": args.region,
     "userPoolId": stack_response["Stacks"][0]["Outputs"][1]["OutputValue"],
     "userPoolWebClientId": stack_response["Stacks"][0]["Outputs"][2]["OutputValue"],
-    "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/Prod".format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region)
+    "apiUrl": "https://{0}.execute-api.{1}.amazonaws.com/dev".format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region)
 }
 
+# 'Description': 's3BucketName - Name of s3 Bucket', 'ExportName': 's3BucketName', 
+# Look for this in outputs
 s3UploadInfo = {
     "region": args.region,
     "s3BucketName": stack_response["Stacks"][0]["Outputs"][3]["OutputValue"],
@@ -169,4 +183,90 @@ if os.path.isdir(maybeWebsitePath): # if maybeWebsitePath is a real folder...
     print('Wrote secrets to {0}'.format(cognitoSecretsPath))
     print("If this isn't what you expected, please use the --website-directory argument.")
 else:
-    print("Failed to write secrets. Please write the secrets output above to recursive_thinking_website/secrets/cognitoSecrets.json and recursive_thinking_website/secrets/s3UploadSecrets.json")
+    print("Failed to write secrets. Please write the secrets output above to recursive_thinking_website_react/secrets/cognitoSecrets.json and recursive_thinking_website_react/secrets/s3UploadSecrets.json")
+    
+# with cognito
+
+# {'Stacks': [
+    # {'StackId': 'arn:aws:cloudformation:us-west-2:918861449844:stack/recursive-thinking-server-react/5d611790-2728-11e9-ac91-0248fc62dc4e', 
+    # 'LastUpdatedTime': '2019-02-02T20:23:18.648Z', 
+    # 'Parameters': [
+    #     {'ParameterValue': 'rt-user-react-assets-us-west-2-sethborne-gmail-com', 'ParameterKey': 'UserAssetsS3Bucket'}, {'ParameterValue': '20190202122225', 'ParameterKey': 'LambdaFolder'}, {'ParameterValue': 'recursive-thinking-react-assets-us-west-2-sethborne-gmail-com', 'ParameterKey': 'AssetsS3Bucket'}], 
+    # 'Tags': [], 
+    # 'Outputs': [
+    #     {
+    #         'Description': 'IdentityPoolId - Export for s3 Bucket', 
+    #         'ExportName': 'RecursiveThinkingIdentityPoolS3Test::Id', 
+    #         'OutputKey': 'CognitoIdentityPoolId', 
+    #         'OutputValue': 'us-west-2:04b2f6e2-9ad5-4099-8149-464c88c92a9f'
+    #     }, {
+    #         'Description': 'userPoolId - The cognito user pool id', 
+    #         'ExportName': 'CognitoUserPoolIdentifier', 
+    #         'OutputKey': 'CognitoUserPoolId', 
+    #         'OutputValue': 'us-west-2_3JORlFpAu'
+    #     }, {
+    #         'Description': 'userPoolWebClientId - The id of the client (app) connected to cognito', 
+    #         'ExportName': 'CognitoUserPoolClientIdentifier', 
+    #         'OutputKey': 'CognitoClientId', 
+    #         'OutputValue': '492ajja9ng3rok3bu6gna8m1ar'
+    #     }, {
+    #         'Description': 's3BucketName - Name of s3 Bucket', 
+    #         'ExportName': 's3BucketName', 
+    #         'OutputKey': 's3BucketName', 
+    #         'OutputValue': 'rt-user-react-assets-us-west-2-sethborne-gmail-com'
+    #     }, {
+    #         'Description': 'apiUrl - The base id of the api, used for constructing the api url to make requests', 'ExportName': 'APIGatewayIdentifier', 
+    #         'OutputKey': 'APIGatewayId', 
+    #         'OutputValue': '53e8p8bi8h'
+    #     }
+    # ], 
+    # 'EnableTerminationProtection': False, 'CreationTime': '2019-02-02T20:23:13.214Z', 'Capabilities': ['CAPABILITY_NAMED_IAM'], 'StackName': 'recursive-thinking-server-react', 'NotificationARNs': [], 'StackStatus': 'CREATE_COMPLETE', 'DisableRollback': False, 'ChangeSetId': 'arn:aws:cloudformation:us-west-2:918861449844:changeSet/awscli-cloudformation-package-deploy-1549138991/7eafc408-f76e-4f88-99a6-6a1f768276b1', 'RollbackConfiguration': {}}]}
+
+# {'Stacks': [
+#     {
+#         'StackId': 'arn:aws:cloudformation:us-west-2:918861449844:stack/recursive-thinking-server-react/36c76340-e6a1-11e8-93f6-500c33711099', 'LastUpdatedTime': '2018-11-12T17:52:20.345Z', 
+#         'Parameters': [
+#             {
+#                 'ParameterValue': 'rt-user-react-assets-us-west-2-sethborne-gmail-com', 
+#                 'ParameterKey': 'UserAssetsS3Bucket'
+#             }, 
+#             {
+#                 'ParameterValue': '20181112095147', 
+#                 'ParameterKey': 'LambdaFolder'
+#             }, 
+#             {
+#                 'ParameterValue': 'recursive-thinking-react-assets-us-west-2-sethborne-gmail-com', 
+#                 'ParameterKey': 'AssetsS3Bucket'
+#             }
+#         ], 
+#         'Tags': [
+            
+#         ], 
+#         'Outputs': [
+#             {
+#                 'Description': 's3BucketName - Name of s3 Bucket', 'ExportName': 's3BucketName', 
+#                 'OutputKey': 's3BucketName', 
+#                 'OutputValue': 'rt-user-react-assets-us-west-2-sethborne-gmail-com'
+#             }, 
+#             {   
+#                 'Description': 'apiUrl - The base id of the api, used for constructing the api url to make requests', 
+#                 'ExportName': 'APIGatewayIdentifier', 
+#                 'OutputKey': 'APIGatewayId', 
+#                 'OutputValue': '37wwxojca6'
+#             }
+#         ], 
+#         'EnableTerminationProtection': False, 
+#         'CreationTime': '2018-11-12T17:52:04.390Z', 
+#         'Capabilities': [
+#             'CAPABILITY_NAMED_IAM'
+#         ], 
+#         'StackName': 'recursive-thinking-server-react', 
+#         'NotificationARNs': [], 
+#         'StackStatus': 'CREATE_COMPLETE', 
+#         'DisableRollback': False, 
+#         'ChangeSetId': 'arn:aws:cloudformation:us-west-2:918861449844:changeSet/awscli-cloudformation-package-deploy-1542045118/94325c28-c7bb-4e43-a582-36c8e572aaf6', 'RollbackConfiguration': {}}]}
+        
+# Traceback (most recent call last):
+#   File "./deployrtw.py", line 119, in <module>
+#     check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name Prod --region={1}'.format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region), shell=True)
+# IndexError: list index out of range
