@@ -689,9 +689,9 @@ Resources:
     # DependsOn: RecursiveThinkingAuthorizer
     Properties:
       # ApiKeyRequired: False
-      AuthorizationType: "NONE"
-      # AuthorizationType: "COGNITO_USER_POOLS"
-      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # AuthorizationType: "NONE"
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceLessons
       RestApiId: !Ref RecursiveThinkingAPI
@@ -864,9 +864,9 @@ Resources:
     # DependsOn: RecursiveThinkingAuthorizer
     Properties:
       # ApiKeyRequired: False
-      AuthorizationType: "NONE"
-      # AuthorizationType: "COGNITO_USER_POOLS"
-      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # AuthorizationType: "NONE"
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestions
       RestApiId: !Ref RecursiveThinkingAPI
@@ -1039,9 +1039,9 @@ Resources:
     # DependsOn: RecursiveThinkingAuthorizer
     Properties:
       # ApiKeyRequired: False
-      AuthorizationType: "NONE"
-      # AuthorizationType: "COGNITO_USER_POOLS"
-      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # AuthorizationType: "NONE"
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceInterviewQuestionsAnswers
       RestApiId: !Ref RecursiveThinkingAPI
@@ -1089,9 +1089,9 @@ Resources:
     # DependsOn: RecursiveThinkingAuthorizer
     Properties:
       # ApiKeyRequired: False
-      AuthorizationType: "NONE"
-      # AuthorizationType: "COGNITO_USER_POOLS"
-      # AuthorizerId: !Ref RecursiveThinkingAuthorizer
+      # AuthorizationType: "NONE"
+      AuthorizationType: "COGNITO_USER_POOLS"
+      AuthorizerId: !Ref RecursiveThinkingAuthorizer
       HttpMethod: "GET"
       ResourceId: !Ref RecursiveThinkingAPIResourceSkills
       RestApiId: !Ref RecursiveThinkingAPI
