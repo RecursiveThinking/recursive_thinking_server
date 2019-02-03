@@ -120,7 +120,7 @@ print(stack_response)
 
 # this needs the api value (same as the APIURL below)
 # This makes a "dev" Stage for the API and deploys it.
-check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name dev --region={1}'.format(stack_response["Stacks"][0]["Outputs"][1]["OutputValue"], args.region), shell=True)
+check_output('aws apigateway create-deployment --rest-api-id {0} --stage-name dev --region={1}'.format(stack_response["Stacks"][0]["Outputs"][4]["OutputValue"], args.region), shell=True)
 
 #  Look for this in outputs
 # 'Description': 'apiUrl - The base id of the api, used for constructing the api url to make requests'
