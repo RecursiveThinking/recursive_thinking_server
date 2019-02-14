@@ -10,7 +10,7 @@ const dynamodb = new AWS.DynamoDB({
   apiVerson: '2012-08-10'
 })
 
-exports.InterviewQuestionAnswersPost = (event, context, callback) => {
+exports.InterviewQuestionsAnswersPost = (event, context, callback) => {
   // const userId = event.requestContext.authorizor.claims.sub;
   const body = typeof event.body === "string" ? JSON.parse(event.body) : event.body
   console.log('event @ postIntQuestAns: ', event);
@@ -21,7 +21,7 @@ exports.InterviewQuestionAnswersPost = (event, context, callback) => {
     Item: body,
     TableName: process.env.TABLE
   }
-  console.log('params @ postIntQuest: ', params)
+  console.log('params @ postIntQuestAns: ', params)
   dynamodb.putItem(params, function(err, intQuestAnsToPost){    
     let response = {};
     if(err){
