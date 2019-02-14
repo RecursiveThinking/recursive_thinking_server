@@ -36,7 +36,7 @@ parser.add_argument("--assets", help="A file path to the lambdas folder e.g. ./l
 parser.add_argument("--stage", help="Stage to deploy the stack to", default="")
 parser.add_argument("--s3bucket", help="Name of the S3 bucket to deploy assets to")
 # parser.add_argument("--website-directory", help="The directory of the website package (so we can dump secrets into it.", default=join('..', 'recursive_thinking_website'))
-parser.add_argument("--website-directory", help="The directory of the website package (so we can dump secrets into it.", default=join('..', 'recursive_thinking_website_react_sandbox/recursive_thinking_website_react_cra/src/_credentials'))
+parser.add_argument("--website-directory", help="The directory of the website package (so we can dump secrets into it.", default=join('..', 'recursive_thinking_website_react_sandbox/recursive_thinking_website_react_cra/src/credentials'))
 parser.add_argument("--region", help="The AWS region to create your assets in.", default="us-west-2")
 args = parser.parse_args()
 
@@ -46,19 +46,20 @@ userAssetsS3Bucket = args.s3bucket
 # create a (hopefully) unique s3bucket if none was defined
 
 # CHANGED TWO PATHS HERE BECAUSE IM WORKING ON MY OWN
+# Note if your bucket name isn't unique (i.e., if it exists anywhere else, then it will be denied.)
 if assetsS3bucket == None:
     if sys.version_info < (3, 0):
         stripedUserName = check_output("git config --global user.email", shell=True).replace('@','-').replace('.', '-').rstrip()
         # assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
         assetsS3bucket = 'recursive-thinking-react-assets-' + args.region + '-' + stripedUserName        
         # userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
-        userAssetsS3Bucket = 'rt-user-react-assets-' + args.region + '-' + stripedUserName
+        userAssetsS3Bucket = 'recursive-thinking-react-user-assets-' + args.region + '-' + stripedUserName
     else:
         stripedUserName = str(check_output("git config --global user.email", shell=True), 'utf-8').replace('@','-').replace('.', '-').rstrip()
         # assetsS3bucket = 'recursive-thinking-assets-' + args.region + '-' + stripedUserName
-        assetsS3bucket = 'recursive-thinking-react-assets-' + args.region + '-' + stripedUserName
+        assetsS3bucket = 'recursivethinking-rct-assets-' + args.region + '-' + stripedUserName
         # userAssetsS3Bucket = 'rt-user-assets-' + args.region + '-' + stripedUserName
-        userAssetsS3Bucket = 'rt-user-react-assets-' + args.region + '-' + stripedUserName
+        userAssetsS3Bucket = 'recursivethinking-rct-user-assets-' + args.region + '-' + stripedUserName
 
 # make the s3 bucket (seems to fail silently if the bucket is already made, so yay!)
 call('aws s3 mb "s3://{0}" --region={1}'.format(assetsS3bucket, args.region), shell=True)
