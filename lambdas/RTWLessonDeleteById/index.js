@@ -5,11 +5,14 @@
 // }
 //access SDK
 const AWS = require('aws-sdk');
-const dynamodb = new AWS.DynamoDB({region: 'us-west-2', apiVerson: '2012-08-10'})
+const dynamodb = new AWS.DynamoDB({
+  region: 'us-west-2', 
+  apiVerson: '2012-08-10'
+})
 
 exports.LessonDeleteById = (event, context, callback) => {
-  console.log('event @ LessonDeleteId', event);
-  console.log('context @ LessonDeleteId', context);
+  console.log('event @ LessonDeleteId Delete: ', event);
+  console.log('context @ LessonDeleteId Delete: ', context);
   
   const params = {
     Key: {
