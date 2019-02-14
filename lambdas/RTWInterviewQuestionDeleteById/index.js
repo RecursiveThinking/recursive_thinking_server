@@ -21,7 +21,7 @@ exports.InterviewQuestionDeleteById = (event, context, callback) => {
         S: event.pathParameters.id
       }
     },
-    TableName: process.env.Table
+    TableName: process.env.TABLE
   }
   dynamodb.deleteItem(params, function(err, intQuestDel){
     let response = {};
@@ -38,11 +38,8 @@ exports.InterviewQuestionDeleteById = (event, context, callback) => {
       console.log('err', response);
       callback(response)
     } else {
-      // wont return anything...?
-      
-      // 
-      response.statusCode = 200;
-      response.body = JSON.stringify({});
+      const intQuestDelUnmarshalled = AWS.DynamoDB.Converter.unmarshall(intQuestDel.Item)
+      console.log('intQuest @ delete', intQuestDelUnmarshalled);
       response.headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
