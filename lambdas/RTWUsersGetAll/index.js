@@ -15,21 +15,21 @@ exports.UsersGetAll = (event, context, callback) => {
     TableName: process.env.TABLE
   }
   dynamodb.scan(params, function(err, allUsers){
-    let response = {}
+    
     if(err){
-      response.statusCode = 501;
-      response.body = JSON.stringify({
+      let error = {}
+      error.statusCode = 501;
+      error.body = JSON.stringify({
         message: 'There was an error calling Dynamo DB',
         error: err
       })
-      response.headers = {
+      error.headers = {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'
       }
-      callback(response)
+      callback(err)
     } else {
-      // we have good data, so unmarshall it
-      // console.log('allUsers', allUsers)
+      let response = {}
       const allUsersUnmarshalled = allUsers.Items.map(userEntry => AWS.DynamoDB.Converter.unmarshall(userEntry))
       // construct response
       response.statusCode = 200;
@@ -41,7 +41,6 @@ exports.UsersGetAll = (event, context, callback) => {
       // invoke callback
       callback(null, response)
     }
-    
   })
 };
   
