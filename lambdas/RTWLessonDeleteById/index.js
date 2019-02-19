@@ -5,6 +5,7 @@
 // }
 //access SDK
 const AWS = require('aws-sdk');
+// const dynamodb = new AWS.DynamoDB.DocumentClient();
 const dynamodb = new AWS.DynamoDB({
   region: 'us-west-2', 
   apiVerson: '2012-08-10'
@@ -13,8 +14,13 @@ const dynamodb = new AWS.DynamoDB({
 exports.LessonDeleteById = (event, context, callback) => {
   console.log('event @ LessonDeleteId Delete: ', event);
   console.log('context @ LessonDeleteId Delete: ', context);
+  console.log('callback @ LessonDeleteId Delete: ', callback);
   
   const params = {
+    // Key: {
+    //   'Id': event.pathParameters.id
+    // },
+    // ReturnValues: "ALL_OLD",
     Key: {
       'Id': {
         // S: event.id
@@ -24,23 +30,31 @@ exports.LessonDeleteById = (event, context, callback) => {
     TableName: process.env.TABLE
   }
   dynamodb.deleteItem(params, function(err, lessonDel){
-    let response = {};
     if(err){
-      response.statusCode = 501;
-      response.body = JSON.stringify({
+      let error = {}
+      error.statusCode = 501;
+      error.body = JSON.stringify({
         message: 'There was an error calling DynamoDB',
         error: err
       })
-      response.headers = {
+      error.headers = {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'
       }
-      console.log('err', response);
-      callback(response)
+      console.log('err', err);
+      console.log('error', error)
+      callback(err)
     } else {
-      // lessonDel
-      const lessonDelUnmarshalled = AWS.DynamoDB.Converter.unmarshall(lessonDel.Item)
-      console.log('lesson @ delete', lessonDelUnmarshalled);
+      let response = {};
+      // response.statusCode = 200;
+      // response.body = JSON.stringify(lessonDel.Attributes)
+      // response.headers = {
+      //   'Content-Type': 'application/json',
+      //   'Access-Control-Allow-Origin': '*'
+      // }
+      // build response object
+      response.statusCode = 200;
+      response.body = JSON.stringify(lessonDel);
       response.headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'

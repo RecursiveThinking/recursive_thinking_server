@@ -7,7 +7,6 @@ const dynamodb = new AWS.DynamoDB({
 
 exports.LessonsGetAll = (event, context, callback) => {
   // TODO implement
-  let response = {};
   const params = {
     // Key: {
       // userId: event.requestContext.authorizer.claims.sub
@@ -17,18 +16,20 @@ exports.LessonsGetAll = (event, context, callback) => {
   
   dynamodb.scan(params, function(err, allLessons){
     if(err){
-      response.statusCode = 501;
-      response.body = JSON.stringify({
+      let error = {};
+      error.statusCode = 501;
+      error.body = JSON.stringify({
         message: 'There was an Error calling Dynamo DB',
         error: err
       })
-      response.headers = {
+      error.headers = {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'
       }
-      callback(response)
+      callback(err)
     } else {
       // good data
+      let response = {};
       const allLessonsUnmarshalled = allLessons.Items.map(lessonEntry => AWS.DynamoDB.Converter.unmarshall(lessonEntry))
       // shape response object
       response.statusCode = 200;
