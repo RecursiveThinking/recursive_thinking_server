@@ -1048,7 +1048,7 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsAnswersGetAll.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionAnswersGetAll.Arn}/invocations
         
 # ================================================================
 # POST - /interviewquestionsanswers/
@@ -1067,7 +1067,7 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsAnswersPost.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionAnswersPost.Arn}/invocations
   
   RecursiveThinkingAPIResourceInterviewQuestionsAnswersCORSGetAndPostOptions:
     Type: "AWS::ApiGateway::Method"
@@ -1119,7 +1119,7 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsAnswerGetById.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionAnswerGetById.Arn}/invocations
         # CacheKeyParameters:
         #   - 'method.request.path.id'
         # RequestParameters:
@@ -1144,7 +1144,7 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsAnswerDeleteById.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionAnswerDeleteById.Arn}/invocations
         # CacheKeyParameters:
         #   - 'method.request.path.id'
         # RequestParameters:
@@ -1169,7 +1169,7 @@ Resources:
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
-        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionsAnswerPutById.Arn}/invocations
+        Uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${RTWInterviewQuestionAnswerPutById.Arn}/invocations
         # CacheKeyParameters:
         #   - 'method.request.path.id'
         # RequestParameters:
@@ -1652,18 +1652,18 @@ Resources:
   RecursiveThinkingLambdaPermissionInterviewQuestionPutById:
     Type: "AWS::Lambda::Permission"
     Properties:
+      FunctionName: !Ref RTWInterviewQuestionPutById
       Action: lambda:*
       # Action: "lambda:InvokeFunction"
-      FunctionName: !Ref RTWInterviewQuestionPutById
       Principal: apigateway.amazonaws.com
 
 # ================================================================
 # PERMISSION - GET - /interviewquestionsanswers/
 # ================================================================
-  RecursiveThinkingLambdaPermissionInterviewQuestionsAnswersGetAll:
+  RecursiveThinkingLambdaPermissionInterviewQuestionAnswersGetAll:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: !Ref RTWInterviewQuestionsAnswersGetAll
+      FunctionName: !Ref RTWInterviewQuestionAnswersGetAll
       Action: lambda:*
       # Action: "lambda:InvokeFunction"
       Principal: apigateway.amazonaws.com
@@ -1671,10 +1671,10 @@ Resources:
 # ================================================================
 # PERMISSION - POST - /interviewquestionsanswers/
 # ================================================================
-  RecursiveThinkingLambdaPermissionInterviewQuestionsAnswersPost:
+  RecursiveThinkingLambdaPermissionInterviewQuestionAnswersPost:
     Type: "AWS::Lambda::Permission"
     Properties:
-      FunctionName: !Ref RTWInterviewQuestionsAnswersPost
+      FunctionName: !Ref RTWInterviewQuestionAnswersPost
       Action: lambda:*
       # Action: "lambda:InvokeFunction"
       Principal: apigateway.amazonaws.com
@@ -1682,34 +1682,34 @@ Resources:
 # ================================================================
 # PERMISSION - GET - /interviewquestionsanswers/{id}
 # ================================================================
-  RecursiveThinkingLambdaPermissionInterviewQuestionAnswersGetById:
+  RecursiveThinkingLambdaPermissionInterviewQuestionAnswerGetById:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: lambda:*
       # Action: "lambda:InvokeFunction"
-      FunctionName: !Ref RTWInterviewQuestionsAnswerGetById
+      FunctionName: !Ref RTWInterviewQuestionAnswerGetById
       Principal: apigateway.amazonaws.com
       
 # ================================================================
 # PERMISSION - DELETE - /interviewquestionsanswers/{id}
 # ================================================================
-  RecursiveThinkingLambdaPermissionInterviewQuestionAnswersDeleteById:
+  RecursiveThinkingLambdaPermissionInterviewQuestionAnswerDeleteById:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: lambda:*
       # Action: "lambda:InvokeFunction"
-      FunctionName: !Ref RTWInterviewQuestionsAnswerDeleteById
+      FunctionName: !Ref RTWInterviewQuestionAnswerDeleteById
       Principal: apigateway.amazonaws.com
       
 # ================================================================
 # PERMISSION - PUT - /interviewquestionsanswers/{id}
 # ================================================================
-  RecursiveThinkingLambdaPermissionInterviewQuestionAnswersPutById:
+  RecursiveThinkingLambdaPermissionInterviewQuestionAnswerPutById:
     Type: "AWS::Lambda::Permission"
     Properties:
       Action: lambda:*
       # Action: "lambda:InvokeFunction"
-      FunctionName: !Ref RTWInterviewQuestionsAnswerPutById
+      FunctionName: !Ref RTWInterviewQuestionAnswerPutById
       Principal: apigateway.amazonaws.com
 
 # ================================================================
@@ -2183,19 +2183,19 @@ Resources:
 # ================================================================
 # LAMBDA - GET - /interviewquestionsanswers/
 # ================================================================
-  RTWInterviewQuestionsAnswersGetAll:
+  RTWInterviewQuestionAnswersGetAll:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestionsAnswers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsAnswersGetAll.zip"] ]
-      Description: "RTW Interview Questions Answers Get All"
-      FunctionName: "RTWInterviewQuestionsAnswersGetAll"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionAnswersGetAll.zip"] ]
+      Description: "RTW Interview Question Answers Get All"
+      FunctionName: "RTWInterviewQuestionAnswersGetAll"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestionsAnswers
-      Handler: index.InterviewQuestionsAnswersGetAll
+      Handler: index.InterviewQuestionAnswersGetAll
       MemorySize: 128
       Role: !GetAtt RTWIAMRoleLambda.Arn
       # Role: !GetAtt RTWIAMRoleLambdaForDynamoScanAndGetItem.Arn
@@ -2209,19 +2209,19 @@ Resources:
 # ================================================================
 # LAMBDA - POST - /interviewquestionsanswers
 # ================================================================
-  RTWInterviewQuestionsAnswersPost:
+  RTWInterviewQuestionAnswersPost:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestionsAnswers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsAnswersPost.zip"] ]
-      Description: "RTW Interview Questions Answers Post"
-      FunctionName: "RTWInterviewQuestionsAnswersPost"
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionAnswersPost.zip"] ]
+      Description: "RTW Interview Question Answers Post"
+      FunctionName: "RTWInterviewQuestionAnswersPost"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestionsAnswers
-      Handler: index.InterviewQuestionsAnswersPost
+      Handler: index.InterviewQuestionAnswersPost
       MemorySize: 128
       Role: !GetAtt RTWIAMRoleLambda.Arn
       # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
@@ -2235,13 +2235,13 @@ Resources:
 # ================================================================
 # LAMBDA - GET - /interviewquestionsanswers/{id}
 # ================================================================
-  RTWInterviewQuestionsAnswerGetById:
+  RTWInterviewQuestionAnswerGetById:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestionsAnswers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsAnswerGetById.zip"] ]
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionAnswerGetById.zip"] ]
       Description: "RTW Get Interview Question Answer By Id"
       FunctionName: "RTWInterviewQuestionAnswerGetById"
       Environment:
@@ -2261,19 +2261,19 @@ Resources:
 # ================================================================
 # LAMBDA - DELETE - /interviewquestionsanswers/{id}
 # ================================================================
-  RTWInterviewQuestionsAnswerDeleteById:
+  RTWInterviewQuestionAnswerDeleteById:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestionsAnswers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsAnswerDeleteById.zip"] ]
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionAnswerDeleteById.zip"] ]
       Description: "RTW Interview Question Answer By Id"
       FunctionName: "RTWInterviewQuestionAnswerDeleteById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestionsAnswers
-      Handler: index.InterviewQuestionsAnswerDeleteById
+      Handler: index.InterviewQuestionAnswerDeleteById
       MemorySize: 128
       Role: !GetAtt RTWIAMRoleLambda.Arn
       # Role: !GetAtt RTWIAMRoleLambdaForDynamoDeleteItem.Arn
@@ -2287,19 +2287,19 @@ Resources:
 # ================================================================
 # LAMBDA - PUT OR PATCH - /interviewquestionsanswers/{id}
 # ================================================================
-  RTWInterviewQuestionsAnswerPutById:
+  RTWInterviewQuestionAnswerPutById:
     Type: "AWS::Lambda::Function"
     DependsOn: RecursiveThinkingInterviewQuestionsAnswers
     Properties:
       Code:
         S3Bucket: !Ref AssetsS3Bucket
-        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionsAnswerPutById.zip"] ]
+        S3Key: !Join [ "", [ !Ref LambdaFolder, "/RTWInterviewQuestionAnswerPutById.zip"] ]
       Description: "RTW Put Interview Question Answer By Id"
       FunctionName: "RTWInterviewQuestionAnswerPutById"
       Environment:
         Variables:
           TABLE: !Ref RecursiveThinkingInterviewQuestionsAnswers
-      Handler: index.InterviewQuestionsAnswerPutById
+      Handler: index.InterviewQuestionAnswerPutById
       MemorySize: 128
       Role: !GetAtt RTWIAMRoleLambda.Arn
       # Role: !GetAtt RTWIAMRoleLambdaForDynamoPostItem.Arn
