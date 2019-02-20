@@ -22,7 +22,7 @@ exports.InterviewQuestionPutById = (event, context, callback) => {
     params[key] = body[key]
   }
 
-  console.log('params @ postIntQuestions: ', params)
+  console.log('params @ putIntQuestions: ', params)
   
   dynamodb.update(params, function(err, intQuestToEdit){    
     if(err){
