@@ -813,7 +813,7 @@
           "S": "avatar_default.png"
         },
         "name": {
-          "S": "Sir Von Douchebag"
+          "S": "Gulliver Lennon"
         },
         "email": {
           "S": "oneTallBoyToRuleThemAll@gmail.com"
@@ -828,7 +828,7 @@
           "S": "Pabst Blue Ribbion Brewing"
         },
         "title": {
-          "S": "Annoying Asshat"
+          "S": "Hip Ster"
         },
         "linkGithub": {
           "S": " "
