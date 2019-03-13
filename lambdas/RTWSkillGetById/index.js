@@ -1,51 +1,43 @@
 // {
 //   "pathParameters": {
-//     "id": "8c57c8d0-8e19-11e8-924a-a70245d1837e"
+//     "Id": "9cdd7120-8ed0-11e8-b260-d5e4455e16bd"
 //   }
 // }
 //access SDK
 const AWS = require('aws-sdk');
-const dynamodb = new AWS.DynamoDB({
-  region: 'us-west-2', 
-  apiVerson: '2012-08-10'
-})
+const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 exports.SkillGetById = (event, context, callback) => {
-  console.log('event @ SkillGetById', event);
-  console.log('context @ SkillGetById', context);
+  // TODO implement
+  console.log('event @ skill Get', event)
+  console.log('context @ skill Get', context)
   const params = {
     Key: {
-      'Id': {
-        // S: event.id
-        S: event.pathParameters.id
-      }
+      Id: event.pathParameters.id
     },
     TableName: process.env.TABLE
   }
-  dynamodb.getItem(params, function(err, skill){
-    let response = {};
+  dynamodb.get(params, function(err, skill){
     if(err){
-      response.statusCode = 501;
-      response.body = JSON.stringify({
-        message: 'There was an error calling DynamoDB',
-        error: err
-      })
-      response.headers = {
+      err.customStatus.statusCode = 501;
+      err.customMessage.message = 'There was an Error Calling DynamoDB';
+      err.customHeaders = {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'
       }
-      console.log('err @ LessonGetById', response.error)
-      callback(response)
+      console.log('err', err);
+      callback(err);
     } else {
-      // good skill so get it and unmarshall
-      const skillByIdUnmarshalled = AWS.DynamoDB.Converter.unmarshall(skill.Item)
-      // build repsonse
+      let response = {}
+      console.log('skill: ', skill)
+      console.log('skill: ', skill.Item)
       response.statusCode = 200;
-      response.body = JSON.stringify(skillByIdUnmarshalled);
+      response.body = JSON.stringify(skill);
       response.headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       }
+      // callback response
       callback(null, response)
     }
   })
