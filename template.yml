@@ -2540,10 +2540,10 @@ Resources:
     Type: "AWS::DynamoDB::Table"
     Properties:
       AttributeDefinitions:
-        - AttributeName: "Id"
+        - AttributeName: "id"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "Id"
+        - AttributeName: "id"
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 1
