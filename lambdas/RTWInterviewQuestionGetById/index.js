@@ -43,10 +43,6 @@ exports.InterviewQuestionGetById = (event, context, callback) => {
   })
 }
 
-
-
-
-
 // const AWS = require('aws-sdk');
 // const dynamodb = new AWS.DynamoDB({
 //   region: 'us-west-2', 
