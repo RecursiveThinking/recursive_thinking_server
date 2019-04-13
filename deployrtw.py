@@ -63,6 +63,7 @@ if assetsS3bucket == None:
 
 # make the s3 bucket (seems to fail silently if the bucket is already made, so yay!)
 call('aws s3 mb "s3://{0}" --region={1}'.format(assetsS3bucket, args.region), shell=True)
+# call('aws s3 mb "s3://{0}" --region={1}'.format(userAssetsS3Bucket, args.region), shell=True)
 
 # upload lambda assets
 # NOTE: we're using posixpath here for cross-compatibility b/c python doesn't seem to care
@@ -97,6 +98,12 @@ for subdir in os.listdir(args.assets):
 # execute the cloudformation update
 call("aws cloudformation deploy --s3-bucket={3} --template-file {1} --stack-name recursive-thinking-server-react{0} --capabilities=CAPABILITY_NAMED_IAM --parameter-overrides LambdaFolder={2} AssetsS3Bucket={3} UserAssetsS3Bucket={5} --region={4}".format(args.stage, args.template, build_dir, assetsS3bucket, args.region, userAssetsS3Bucket), shell=True)
 
+#copy all files in my-data-dir into the "data" directory located in my-s3-bucket 
+# aws s3 cp my-data-dir/ s3://my-s3-bucket/data/ --recursive
+# local directory is /avatars
+# call("aws s3 cp avatars/ s3://{0}/avatars/ --recursive".format(userAssetsS3Bucket), shell=True)
+call("aws s3 cp avatars/ s3://{0}/avatars/ --recursive".format(userAssetsS3Bucket), shell=True)
+
 # autoload users from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingUsers.json --region={0}".format(args.region), shell=True)
 # autoload homeScreen quotes from json to Dynamo
@@ -110,9 +117,8 @@ call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThin
 # autoload lessons from json to Dynamo
 call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingInterviewQuestionsAnswers.json --region={0}".format(args.region), shell=True)
 # autoload skills from json to Dynamo
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkills1.json --region={0}".format(args.region), shell=True)
-call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingProfileSkills2.json --region={0}".format(args.region), shell=True)
-
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingSkillsCategories1.json --region={0}".format(args.region), shell=True)
+call("aws dynamodb batch-write-item --request-items file://db_fill/RecursiveThinkingSkillsCategories2.json --region={0}".format(args.region), shell=True)
 
 # get stack info
 status = check_output("aws cloudformation describe-stacks --stack-name={0} --region={1}".format("recursive-thinking-server-react", args.region), shell=True)
