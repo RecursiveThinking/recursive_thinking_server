@@ -13,7 +13,7 @@ exports.SkillGetById = (event, context, callback) => {
   console.log('context @ skill Get', context)
   const params = {
     Key: {
-      Id: event.pathParameters.id
+      id: event.pathParameters.id
     },
     TableName: process.env.TABLE
   }
