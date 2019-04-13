@@ -1,1 +1,193 @@
-{"RecursiveThinkingRanks":[{"PutRequest":{"Item":{"Id":{"S":"f227e840-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Youngling"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e841-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Adv Youngling"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e842-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Padawan"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e843-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Adv Padawan"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e844-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Jedi Initiate"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e845-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Jedi"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e846-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Jedi Knight"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e847-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Jedi Master"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}},{"PutRequest":{"Item":{"Id":{"S":"f227e848-8ed5-11e8-a170-15022f2a2d75"},"rank":{"S":"Jedi Grand Master"},"createdAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"updatedAt":{"S":"Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"},"_usersWithRank":{"L":[]}}}}]}
+{
+  "RecursiveThinkingRanks": [
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e840-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Youngling"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e841-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Adv Youngling"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e842-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Padawan"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e843-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Adv Padawan"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e844-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Jedi Initiate"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e845-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Jedi"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e846-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Jedi Knight"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e847-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Jedi Master"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    },
+    {
+      "PutRequest": {
+        "Item": {
+          "Id": {
+            "S": "f227e848-8ed5-11e8-a170-15022f2a2d75"
+          },
+          "name": {
+            "S": "Jedi Grand Master"
+          },
+          "createdAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "updatedAt": {
+            "S": "Tue Oct 02 2018 20:30:05 GMT-0700 (Pacific Daylight Time)"
+          },
+          "_usersWithRank": {
+            "L": []
+          }
+        }
+      }
+    }
+  ]
+}
