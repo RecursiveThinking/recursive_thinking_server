@@ -4,7 +4,10 @@ const dynamodb = new AWS.DynamoDB({region: 'us-west-2', apiVerson: '2012-08-10'}
 
 exports.HomeScreenQuotesGetAll = (event, context, callback) => {
   // TODO implement
-  let response = {}
+  console.log('event @ getAllHomeScreenQuotes: ', event);
+  console.log('event.body @ getAllHomeScreenQuotes: ', event.body)
+  // console.log('body @ putUsers: ', body);
+  console.log('context @ getAllHomeScreenQuotes: ', context);
   const params = {
     // Key: {
       // userId: event.requestContext.authorizer.claims.sub
@@ -14,17 +17,19 @@ exports.HomeScreenQuotesGetAll = (event, context, callback) => {
   // now make the dynamo scan
   dynamodb.scan(params, function(err, allHomeScreenQuotes){
     if(err){
-      response.statusCode = 501;
-      response.body = JSON.stringify({
+      let error = {};
+      error.statusCode = 501;
+      error.body = JSON.stringify({
         message: 'There was an Error calling Dynamo DB',
         error: err
       })
-      response.headers = {
+      error.headers = {
         'Content-Type': 'text/plain',
         'Access-Control-Allow-Origin': '*'
       }
-      callback(response)
+      callback(err)
     } else {
+      let response = {};
       // convert database arr/obj to json obj
       const allHomeScreenQuotesUnMarshalled = allHomeScreenQuotes.Items.map((hsqEntry) => AWS.DynamoDB.Converter.unmarshall(hsqEntry))
       // shape response object
